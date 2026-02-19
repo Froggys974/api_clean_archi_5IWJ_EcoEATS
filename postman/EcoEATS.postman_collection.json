@@ -1,0 +1,475 @@
+{
+  "info": {
+    "_postman_id": "a1e3d566-79f9-4404-908c-6cf1b911edcf",
+    "name": "EcoEATS API",
+    "description": "Collection de tests pour l'API EcoEATS - Clean Architecture",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31936822"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 - Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has userId and message', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('userId');",
+                  "  pm.expect(json).to.have.property('message');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('client_user_id', json.userId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@test.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Florent\",\n  \"lastName\": \"Client\",\n  \"phone\": \"0612345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/client",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "client"
+              ]
+            },
+            "description": "Inscription d'un nouvel utilisateur CLIENT.\n\n**Corps requis** :\n- `email` (string) — adresse email unique\n- `password` (string) — mot de passe\n- `firstName` (string) — prénom\n- `lastName` (string) — nom\n- `phone` (string, optionnel) — numéro de téléphone\n\n**Réponses** :\n- `201` — Inscription réussie, retourne `{ userId, message }`\n- `409` — Email déjà utilisé\n- `400` — Données invalides"
+          },
+          "response": [
+            {
+              "name": "201 - Inscription réussie",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"client@ecoeats.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Dupont\",\n  \"phone\": \"0612345678\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register/client",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register",
+                    "client"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"userId\": \"abc-123-def\",\n  \"message\": \"Registration successful\"\n}"
+            },
+            {
+              "name": "409 - Email déjà utilisé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"client@ecoeats.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Dupont\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register/client",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register",
+                    "client"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Email already exists\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register Courier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 - Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has userId and message', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('userId');",
+                  "  pm.expect(json).to.have.property('message');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('courier_user_id', json.userId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"courier@test.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Florent\",\n  \"lastName\": \"Livreur\",\n  \"phone\": \"0612345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register/courier",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "courier"
+              ]
+            },
+            "description": "Inscription d'un nouvel utilisateur COURIER.\n\n**Corps requis** :\n- `email` (string) — adresse email unique\n- `password` (string) — mot de passe\n- `firstName` (string) — prénom\n- `lastName` (string) — nom\n- `phone` (string, **obligatoire** pour les coursiers) — numéro de téléphone\n\n**Réponses** :\n- `201` — Inscription réussie, retourne `{ userId, message }`\n- `409` — Email déjà utilisé\n- `400` — Données invalides"
+          },
+          "response": [
+            {
+              "name": "201 - Inscription réussie",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"courier@ecoeats.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Martin\",\n  \"phone\": \"0698765432\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register/courier",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register",
+                    "courier"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"userId\": \"xyz-456-ghi\",\n  \"message\": \"Registration successful\"\n}"
+            },
+            {
+              "name": "409 - Email déjà utilisé",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"courier@ecoeats.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Martin\",\n  \"phone\": \"0698765432\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register/courier",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register",
+                    "courier"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Email already exists\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 - OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('token');",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('jwt_token', json.token);",
+                  "  pm.collectionVariables.set('jwt_token', json.token);",
+                  "  console.log('JWT token saved:', json.token.substring(0, 30) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@test.com\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Connexion d'un utilisateur existant (CLIENT ou COURIER).\n\nLe script de test sauvegarde automatiquement le token JWT dans la variable d'environnement `jwt_token` pour les prochaines requêtes.\n\n**Corps requis** :\n- `email` (string) — adresse email\n- `password` (string) — mot de passe\n\n**Réponses** :\n- `200` — Connexion réussie, retourne `{ token }`\n- `401` — Identifiants invalides"
+          },
+          "response": [
+            {
+              "name": "200 - Connexion réussie",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"client@ecoeats.com\",\n  \"password\": \"Password123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYmMtMTIzIiwicm9sZSI6IkNMSUVOVCIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoxNjAwMDAzNjAwfQ.signature\"\n}"
+            },
+            {
+              "name": "401 - Identifiants invalides",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"client@ecoeats.com\",\n  \"password\": \"mauvais_mdp\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Invalid credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login Courier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 - OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('token');",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('jwt_token', json.token);",
+                  "  pm.collectionVariables.set('jwt_token', json.token);",
+                  "  console.log('JWT token (courier) saved');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"courier@test.com\",\n  \"password\": \"Password123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Connexion d'un utilisateur COURIER. Le token JWT est sauvegardé automatiquement."
+          },
+          "response": []
+        }
+      ],
+      "description": "Routes d'authentification"
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "description": "JWT token récupéré après login (sauvegardé automatiquement par le script de test)"
+    },
+    {
+      "key": "client_user_id",
+      "value": "",
+      "description": "ID de l'utilisateur client créé lors du register (sauvegardé automatiquement)"
+    },
+    {
+      "key": "courier_user_id",
+      "value": "",
+      "description": "ID du coursier créé lors du register (sauvegardé automatiquement)"
+    }
+  ]
+}

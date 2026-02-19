@@ -11,7 +11,8 @@
     "paths": {
       "@application/*": ["application/*"],
       "@domain/*": ["domain/*"],
-      "@infrastructure/*": ["infrastructure/*"]
+      "@infrastructure/*": ["infrastructure/*"],
+      "@interface/*": ["interface/*"]
     },
 
     // Environment Settings
