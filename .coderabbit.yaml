@@ -17,7 +17,7 @@ reviews:
   auto_title_placeholder: '@coderabbitai'
   review_status: true
   commit_status: true
-  fail_commit_status: false
+  fail_commit_status: true
   collapse_walkthrough: false
   changed_files_summary: true
   sequence_diagrams: true
@@ -196,6 +196,7 @@ reviews:
       enabled: false
 
 chat:
+  allow_non_org_members: false
   auto_reply: true
   integrations:
     jira:
