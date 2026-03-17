@@ -72,6 +72,7 @@ reviews:
     drafts: false
     # Reviews sur main ET develop
     base_branches:
+      - 'main'
       - 'develop'
 
   finishing_touches:
@@ -82,7 +83,7 @@ reviews:
     ast-grep:
       essential_rules: true
       rule_dirs: []
-      utils_dirs: []
+      util_dirs: []
       packages: []
 
     # Désactivé : pas de fichier eslint.config.* à la racine du projet
