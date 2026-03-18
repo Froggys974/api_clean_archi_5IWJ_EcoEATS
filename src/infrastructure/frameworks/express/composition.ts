@@ -9,13 +9,15 @@ import { AuthGuard } from '@interface/guards/auth.guard';
 import { RegisterClient } from '@application/usecases/auth/register-client.use-case';
 import { RegisterCourier } from '@application/usecases/auth/register-courier.use-case';
 import { Login } from '@application/usecases/auth/login.use-case';
+import { User } from '@domain/entities/user/user.entity';
+import { Email } from '@domain/value-objects/email.value-object';
 
 export type Composition = {
   authController: AuthController;
   authGuard: AuthGuard;
 };
 
-export function createComposition(config: ConfigPort): Composition {
+export async function createComposition(config: ConfigPort): Promise<Composition> {
   const hashService = new HashService(config);
   const tokenService = new TokenService(config);
 
@@ -26,6 +28,21 @@ export function createComposition(config: ConfigPort): Composition {
   const registerClient = new RegisterClient(userRepository, clientProfileRepository, hashService);
   const registerCourier = new RegisterCourier(userRepository, courierProfileRepository, hashService);
   const login = new Login(userRepository, hashService, tokenService);
+
+  // Seed user for testing
+  const seedEmail = Email.create('toto@mail.fr');
+  if (seedEmail.success) {
+    userRepository.create(
+      User.create({
+        id: 'test-user-id',
+        email: seedEmail.data,
+        passwordHash: await hashService.hash('password'),
+        firstName: 'Toto',
+        lastName: 'EATS',
+        roles: ['CLIENT'],
+      })
+    );
+  }
 
   const authController = new AuthController(registerClient, registerCourier, login);
 
