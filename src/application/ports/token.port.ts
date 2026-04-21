@@ -1,10 +1,9 @@
-import { UserRole } from '@domain/entities/user/user.entity';
 import { ResultType } from '@domain/shared/result';
 import { UnauthorizedError } from '@domain/errors/auth.errors';
 
 export type UserPayload = {
   id: string;
-  roles: UserRole[];
+  roles: string[];
 };
 
 export interface TokenPort {
