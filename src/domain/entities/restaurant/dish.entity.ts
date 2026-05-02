@@ -16,6 +16,7 @@ type CreateDishProps = {
   imageUrl?: string;
   category?: string;
   isAvailable?: boolean;
+  restaurantId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -42,6 +43,7 @@ export class Dish {
     public readonly imageUrl: string | undefined,
     public readonly category: string | undefined,
     public readonly isAvailable: boolean,
+    public readonly restaurantId: string | undefined,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
@@ -60,6 +62,7 @@ export class Dish {
       props.imageUrl,
       props.category,
       props.isAvailable ?? true,
+      props.restaurantId,
       props.createdAt ?? new Date(),
       props.updatedAt ?? new Date()
     );
@@ -103,6 +106,7 @@ export class Dish {
       props.imageUrl ?? this.imageUrl,
       props.category ?? this.category,
       props.isAvailable ?? this.isAvailable,
+      this.restaurantId,
       this.createdAt,
       new Date()
     );
@@ -120,10 +124,11 @@ export class Dish {
       this.price,
       this.allergens,
       stock,
-      stock, // Reset available stock to daily stock
+      stock,
       this.imageUrl,
       this.category,
       this.isAvailable,
+      this.restaurantId,
       this.createdAt,
       new Date()
     );
@@ -149,6 +154,7 @@ export class Dish {
       this.imageUrl,
       this.category,
       this.isAvailable,
+      this.restaurantId,
       this.createdAt,
       new Date()
     );
@@ -176,6 +182,7 @@ export class Dish {
       this.imageUrl,
       this.category,
       this.isAvailable,
+      this.restaurantId,
       this.createdAt,
       new Date()
     );
@@ -193,6 +200,7 @@ export class Dish {
       this.imageUrl,
       this.category,
       available,
+      this.restaurantId,
       this.createdAt,
       new Date()
     );

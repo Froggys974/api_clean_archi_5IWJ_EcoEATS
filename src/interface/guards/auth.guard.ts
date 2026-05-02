@@ -12,7 +12,7 @@ export class AuthGuard {
     const result = this.tokenPort.verify(token);
     if (!result.success) return Result.Failed(result.error);
 
-    if (!result.data.roles.includes(requiredRole)) {
+    if (!result.data.roles.some(r => r.toLowerCase() === requiredRole.toLowerCase())) {
       return Result.Failed(new UnauthorizedError('Insufficient permissions'));
     }
 

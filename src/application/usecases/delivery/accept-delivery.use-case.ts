@@ -14,6 +14,9 @@ import {
   DeliveriesNotFromSameRestaurantError,
 } from "@domain/errors/delivery.errors";
 
+const ESTIMATED_MINUTES_PER_KM = 3;
+const BASE_DELIVERY_MINUTES = 15;
+
 export type AcceptDeliveryInput = {
   deliveryId: string;
   courierId: string;
@@ -107,7 +110,7 @@ export class AcceptDeliveryUseCase {
 
       const estimatedDeliveryTime = new Date();
       const estimatedMinutes =
-        Math.ceil(delivery.distance.getKilometers() * 3) + 15;
+        Math.ceil(delivery.distance.getKilometers() * ESTIMATED_MINUTES_PER_KM) + BASE_DELIVERY_MINUTES;
       estimatedDeliveryTime.setMinutes(
         estimatedDeliveryTime.getMinutes() + estimatedMinutes,
       );

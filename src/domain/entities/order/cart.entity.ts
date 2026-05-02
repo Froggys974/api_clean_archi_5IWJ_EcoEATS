@@ -51,11 +51,6 @@ export class Cart {
       throw new Error("Client id is required");
     }
 
-    // Validate all items belong to the same restaurant
-    if (this.items.length > 0 && this.restaurantId) {
-      // This validation should be done when adding items
-      // Here we just ensure consistency
-    }
   }
 
   addItem(item: CartItem, restaurantId: string): Cart {
