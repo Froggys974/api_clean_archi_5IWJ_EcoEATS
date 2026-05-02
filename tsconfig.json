@@ -49,5 +49,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "exclude": ["test-domain.ts", "node_modules", "dist"]
 }

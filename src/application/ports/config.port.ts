@@ -9,6 +9,7 @@ export interface Env {
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
   BCRYPT_SALT_ROUNDS: string;
+  FRONTEND_URL?: string;
 }
 
 export interface ConfigPort {

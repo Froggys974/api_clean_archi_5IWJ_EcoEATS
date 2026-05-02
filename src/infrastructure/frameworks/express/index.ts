@@ -2,12 +2,16 @@ import { DotenvConfigService } from '@infrastructure/config/dotenv-config.servic
 import { createComposition } from './composition';
 import { createApp } from './app';
 
-const config = new DotenvConfigService();
-const { authController, authGuard } = createComposition(config);
-const app = createApp({ authController, authGuard });
+async function bootstrap() {
+  const config = new DotenvConfigService();
+  const { authController, authGuard } = await createComposition(config);
+  const app = createApp({ authController, authGuard }, config);
 
-const PORT = config.get('PORT') || '3000';
+  const PORT = config.get('PORT') || '3000';
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+bootstrap();

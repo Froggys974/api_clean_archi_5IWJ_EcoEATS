@@ -1,5 +1,5 @@
 import { AuthController } from '@interface/controllers/auth.controller';
-import { LoginDto, RegisterClientDto, RegisterCourierDto } from '@interface/dtos/auth.dto';
+import { LoginDto, RegisterClientDto, RegisterCourierDto, RegisterRestaurantOwnerDto } from '@interface/dtos/auth.dto';
 import { Router, Request, Response } from 'express';
 
 export function authRouter(authController: AuthController): Router {
@@ -14,6 +14,12 @@ export function authRouter(authController: AuthController): Router {
   router.post('/register/courier', async (req: Request, res: Response) => {
     const inputCourier: RegisterCourierDto = req.body;
     const response = await authController.registerCourier(inputCourier);
+    res.status(response.statusCode).json(response.data);
+  });
+
+  router.post('/register/restaurant', async (req: Request, res: Response) => {
+    const input: RegisterRestaurantOwnerDto = req.body;
+    const response = await authController.registerRestaurantOwner(input);
     res.status(response.statusCode).json(response.data);
   });
 

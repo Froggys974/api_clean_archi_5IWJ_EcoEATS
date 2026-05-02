@@ -1,5 +1,6 @@
 import { RegisterClient } from "@application/usecases/auth/register-client.use-case";
 import { RegisterCourier } from "@application/usecases/auth/register-courier.use-case";
+import { RegisterRestaurantOwner } from "@application/usecases/auth/register-restaurant-owner.use-case";
 import { Login } from "@application/usecases/auth/login.use-case";
 
 import { EmailAlreadyExistsError } from "@domain/errors/auth.errors";
@@ -7,6 +8,7 @@ import {
   LoginDto,
   RegisterClientDto,
   RegisterCourierDto,
+  RegisterRestaurantOwnerDto,
 } from "@interface/dtos/auth.dto";
 import { AuthPresenter } from "@interface/presenters/auth.presenter";
 import {
@@ -22,6 +24,7 @@ export class AuthController {
   constructor(
     private readonly registerClientUseCase: RegisterClient,
     private readonly registerCourierUseCase: RegisterCourier,
+    private readonly registerRestaurantOwnerUseCase: RegisterRestaurantOwner,
     private readonly loginUseCase: Login,
   ) {}
 
@@ -88,6 +91,24 @@ export class AuthController {
       statusCode: 201,
       data: AuthPresenter.registerSuccess(result.data),
     };
+  }
+
+  async registerRestaurantOwner(
+    input: RegisterRestaurantOwnerDto,
+  ): Promise<ControllerResponse<RegisterResponse | ErrorResponse>> {
+    if (!input.email || !input.password || !input.firstName || !input.lastName || !input.phone || !input.restaurantName) {
+      return { statusCode: 400, data: { message: "Missing required fields" } };
+    }
+    const result = await this.registerRestaurantOwnerUseCase.execute(input);
+
+    if (!result.success) {
+      if (result.error instanceof EmailAlreadyExistsError) {
+        return { statusCode: 409, data: AuthPresenter.error(result.error.message) };
+      }
+      return { statusCode: 400, data: AuthPresenter.error(result.error.message) };
+    }
+
+    return { statusCode: 201, data: AuthPresenter.registerSuccess(result.data) };
   }
 
   async login(
