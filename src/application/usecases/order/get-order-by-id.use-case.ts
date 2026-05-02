@@ -9,11 +9,15 @@ export class GetOrderByIdUseCase {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(orderId: string, clientId: string): Promise<ResultType<GetOrderByIdOutput, Error>> {
-    const order = await this.orderRepository.findById(orderId);
-    if (!order || !order.belongsToClient(clientId)) {
-      return Result.Failed(new OrderNotFoundError(orderId));
-    }
+    try {
+      const order = await this.orderRepository.findById(orderId);
+      if (!order || !order.belongsToClient(clientId)) {
+        return Result.Failed(new OrderNotFoundError(orderId));
+      }
 
-    return Result.Success({ order });
+      return Result.Success({ order });
+    } catch (error) {
+      return Result.Failed(new Error(`Failed to get order: ${(error as Error).message}`));
+    }
   }
 }

@@ -18,6 +18,6 @@ export class Category {
     if (!props.name || props.name.trim().length === 0) throw new Error('Category name is required');
     if (!props.slug || props.slug.trim().length === 0) throw new Error('Category slug is required');
 
-    return new Category(props.id, props.name, props.slug, props.imageUrl);
+    return new Category(props.id.trim(), props.name.trim(), props.slug.trim(), props.imageUrl);
   }
 }

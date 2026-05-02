@@ -51,7 +51,8 @@ export class UpdateDishUseCase {
       allergens = [];
       for (const name of input.allergens) {
         const result = Allergen.create(name);
-        if (result.success) allergens.push(result.data);
+        if (!result.success) return Result.Failed(result.error);
+        allergens.push(result.data);
       }
     }
 

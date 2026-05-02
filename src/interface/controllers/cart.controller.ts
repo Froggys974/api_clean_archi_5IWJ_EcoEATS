@@ -23,7 +23,7 @@ export class CartController {
   }
 
   async handleAddItem(clientId: string, dto: AddItemDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    if (!dto.dishId || !dto.restaurantId || !dto.quantity) {
+    if (!dto.dishId || !dto.restaurantId || !dto.quantity || dto.quantity < 1) {
       return { statusCode: 400, data: CartPresenter.error('Missing required fields') };
     }
 
@@ -62,7 +62,7 @@ export class CartController {
   }
 
   async handleUpdateItemQuantity(clientId: string, dishId: string, quantity: number): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    if (!dishId || !quantity) {
+    if (!dishId || !quantity || quantity < 1) {
       return { statusCode: 400, data: CartPresenter.error('Missing required fields') };
     }
 

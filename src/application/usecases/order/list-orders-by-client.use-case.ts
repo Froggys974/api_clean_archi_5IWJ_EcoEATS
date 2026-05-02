@@ -8,7 +8,11 @@ export class ListOrdersByClientUseCase {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(clientId: string): Promise<ResultType<ListOrdersByClientOutput, Error>> {
-    const orders = await this.orderRepository.findByClientId(clientId);
-    return Result.Success({ orders });
+    try {
+      const orders = await this.orderRepository.findByClientId(clientId);
+      return Result.Success({ orders });
+    } catch (error) {
+      return Result.Failed(new Error(`Failed to list orders: ${(error as Error).message}`));
+    }
   }
 }

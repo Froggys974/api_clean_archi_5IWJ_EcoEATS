@@ -28,7 +28,8 @@ export function deliveryRouter(
   });
 
   router.patch('/availability', courierGuard, async (req: Request, res: Response) => {
-    const response = await deliveryController.handleSetAvailability(req.userId!, !!req.body?.available);
+    const available = req.body?.available === true || req.body?.available === 'true';
+    const response = await deliveryController.handleSetAvailability(req.userId!, available);
     res.status(response.statusCode).json(response.data);
   });
 

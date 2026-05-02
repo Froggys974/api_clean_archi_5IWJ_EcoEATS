@@ -48,6 +48,7 @@ export class HaversineDistanceCalculatorService implements DistanceCalculatorPor
   }
 
   estimateDeliveryDuration(distance: Distance, averageSpeedKmh: number = 30): number {
+    if (averageSpeedKmh <= 0) return 30;
     return Math.ceil((distance.getKilometers() / averageSpeedKmh) * 60) + 5;
   }
 

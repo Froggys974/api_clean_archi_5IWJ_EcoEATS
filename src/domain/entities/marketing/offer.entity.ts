@@ -19,7 +19,7 @@ export class Offer {
     if (!props.id || props.id.trim().length === 0) throw new Error('Offer id is required');
     if (!props.restaurantId || props.restaurantId.trim().length === 0) throw new Error('Restaurant id is required');
     if (!props.label || props.label.trim().length === 0) throw new Error('Offer label is required');
-    if (props.discountPercent < 0 || props.discountPercent > 100) throw new Error('Discount percent must be between 0 and 100');
+    if (!Number.isFinite(props.discountPercent) || props.discountPercent < 0 || props.discountPercent > 100) throw new Error('Discount percent must be between 0 and 100');
 
     return new Offer(props.id, props.restaurantId, props.label, props.discountPercent, props.imageUrl);
   }

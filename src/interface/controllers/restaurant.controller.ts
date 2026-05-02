@@ -90,7 +90,7 @@ export class RestaurantController {
   }
 
   async handleAddDish(ownerId: string, dto: AddDishDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    if (!dto.name || !dto.description || dto.priceAmount === undefined || dto.dailyStock === undefined) {
+    if (!dto.name || !dto.name.trim() || !dto.description || !dto.description.trim() || dto.priceAmount === undefined || dto.dailyStock === undefined) {
       return { statusCode: 400, data: RestaurantPresenter.error('Missing required fields') };
     }
 
@@ -127,7 +127,7 @@ export class RestaurantController {
   }
 
   async handleAddOffer(ownerId: string, dto: AddOfferDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    if (!dto.label || dto.discountPercent === undefined) {
+    if (!dto.label || !dto.label.trim() || dto.discountPercent === undefined) {
       return { statusCode: 400, data: RestaurantPresenter.error('Missing required fields') };
     }
 

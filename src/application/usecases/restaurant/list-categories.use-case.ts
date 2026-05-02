@@ -8,7 +8,11 @@ export class ListCategoriesUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
   async execute(): Promise<ResultType<ListCategoriesOutput, Error>> {
-    const categories = await this.categoryRepository.findAll();
-    return Result.Success({ categories });
+    try {
+      const categories = await this.categoryRepository.findAll();
+      return Result.Success({ categories });
+    } catch (error) {
+      return Result.Failed(new Error(`Failed to list categories: ${(error as Error).message}`));
+    }
   }
 }
