@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-export function authMiddleware(authGuard: AuthGuard, requiredRole: UserRole) {
+export function authMiddleware(authGuard: AuthGuard, requiredRole?: UserRole) {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
     const result = authGuard.verify(token, requiredRole);

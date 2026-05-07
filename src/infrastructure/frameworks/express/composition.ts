@@ -20,6 +20,9 @@ import { InvoiceInMemoryRepository } from '@infrastructure/repositories/in-memor
 import { CategoryInMemoryRepository } from '@infrastructure/repositories/in-memory/category.in-memory.repository';
 import { OfferInMemoryRepository } from '@infrastructure/repositories/in-memory/offer.in-memory.repository';
 
+// Profile use cases
+import { GetMyProfileUseCase } from '@application/usecases/profile/get-my-profile.use-case';
+
 // Auth use cases
 import { RegisterClient } from '@application/usecases/auth/register-client.use-case';
 import { RegisterCourier } from '@application/usecases/auth/register-courier.use-case';
@@ -70,6 +73,7 @@ import { GetMyWalletUseCase } from '@application/usecases/wallet/get-my-wallet.u
 
 // Controllers
 import { AuthController } from '@interface/controllers/auth.controller';
+import { ProfileController } from '@interface/controllers/profile.controller';
 import { RestaurantController } from '@interface/controllers/restaurant.controller';
 import { CartController } from '@interface/controllers/cart.controller';
 import { OrderController } from '@interface/controllers/order.controller';
@@ -84,6 +88,7 @@ import { seedDatabase } from '@infrastructure/seed/seed';
 
 export type Composition = {
   authController: AuthController;
+  profileController: ProfileController;
   restaurantController: RestaurantController;
   cartController: CartController;
   orderController: OrderController;
@@ -121,6 +126,9 @@ export async function createComposition(config: ConfigPort): Promise<Composition
     offerRepository, walletRepository, restaurantOwnerProfileRepository,
     courierProfileRepository, clientProfileRepository, hashService,
   });
+
+  // Profile use cases
+  const getMyProfileUC = new GetMyProfileUseCase(userRepository);
 
   // Auth use cases
   const registerClient = new RegisterClient(userRepository, clientProfileRepository, hashService);
@@ -172,6 +180,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
 
   // Controllers
   const authController = new AuthController(registerClient, registerCourier, registerRestaurantOwner, login);
+  const profileController = new ProfileController(getMyProfileUC);
   const restaurantController = new RestaurantController(
     listRestaurantsUC,
     getRestaurantByIdUC,
@@ -194,5 +203,5 @@ export async function createComposition(config: ConfigPort): Promise<Composition
 
   const authGuard = new AuthGuard(tokenService);
 
-  return { authController, restaurantController, cartController, orderController, deliveryController, walletController, authGuard };
+  return { authController, profileController, restaurantController, cartController, orderController, deliveryController, walletController, authGuard };
 }

@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import { ConfigPort } from '@application/ports/config.port';
 import { Composition } from './composition';
 import { authRouter } from './routes/auth.routes';
+import { profileRouter } from './routes/profile.routes';
 import { restaurantRouter } from './routes/restaurant.routes';
 import { cartRouter } from './routes/cart.routes';
 import { orderRouter } from './routes/order.routes';
@@ -14,7 +15,7 @@ export function createApp(
   composition: Composition,
   config: ConfigPort
 ): Express {
-  const { authController, restaurantController, cartController, orderController, deliveryController, walletController, authGuard } = composition;
+  const { authController, profileController, restaurantController, cartController, orderController, deliveryController, walletController, authGuard } = composition;
 
   const app = express();
 
@@ -41,6 +42,7 @@ export function createApp(
   app.use(express.json());
 
   app.use('/auth', authRouter(authController));
+  app.use('/me', profileRouter(profileController, authGuard));
   app.use('/restaurants', restaurantRouter(restaurantController, authGuard));
   app.use('/cart', cartRouter(cartController, authGuard));
   app.use('/orders', orderRouter(orderController, authGuard));
