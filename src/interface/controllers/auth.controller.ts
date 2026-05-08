@@ -96,7 +96,7 @@ export class AuthController {
   async registerRestaurantOwner(
     input: RegisterRestaurantOwnerDto,
   ): Promise<ControllerResponse<RegisterResponse | ErrorResponse>> {
-    if (!input.email || !input.password || !input.firstName || !input.lastName || !input.phone || !input.restaurantName) {
+    if (!input.email || !input.password || !input.firstName || !input.lastName || !input.phone) {
       return { statusCode: 400, data: { message: "Missing required fields" } };
     }
     const result = await this.registerRestaurantOwnerUseCase.execute(input);

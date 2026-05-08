@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 
 export function errorMiddleware(
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
-  console.error(err);
+  console.error(`[Error] ${err.message}`, err.stack);
   res.status(500).json({ message: 'Internal server error' });
 }

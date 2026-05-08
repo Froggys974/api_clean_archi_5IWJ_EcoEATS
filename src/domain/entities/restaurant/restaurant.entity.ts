@@ -22,6 +22,7 @@ type CreateRestaurantProps = {
   status?: RestaurantStatus;
   imageUrl?: string;
   rating?: number;
+  highlighted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -50,6 +51,7 @@ export class Restaurant {
     public readonly status: RestaurantStatus,
     public readonly imageUrl: string | undefined,
     public readonly rating: number,
+    public readonly highlighted: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
@@ -69,6 +71,7 @@ export class Restaurant {
       props.status ?? 'CLOSED',
       props.imageUrl,
       props.rating ?? 0,
+      props.highlighted ?? false,
       props.createdAt ?? new Date(),
       props.updatedAt ?? new Date()
     );
@@ -136,6 +139,7 @@ export class Restaurant {
       this.status,
       props.imageUrl ?? this.imageUrl,
       props.rating ?? this.rating,
+      this.highlighted,
       this.createdAt,
       new Date()
     );
@@ -143,19 +147,10 @@ export class Restaurant {
 
   setStatus(status: RestaurantStatus): Restaurant {
     return new Restaurant(
-      this.id,
-      this.ownerId,
-      this.name,
-      this.description,
-      this.address,
-      this.phone,
-      this.cuisineType,
-      this.openingHours,
-      status,
-      this.imageUrl,
-      this.rating,
-      this.createdAt,
-      new Date()
+      this.id, this.ownerId, this.name, this.description,
+      this.address, this.phone, this.cuisineType, this.openingHours,
+      status, this.imageUrl, this.rating, this.highlighted,
+      this.createdAt, new Date()
     );
   }
 
@@ -209,6 +204,7 @@ export class Restaurant {
       this.status,
       this.imageUrl,
       this.rating,
+      this.highlighted,
       this.createdAt,
       new Date()
     );
@@ -231,6 +227,7 @@ export class Restaurant {
       this.status,
       this.imageUrl,
       newRating,
+      this.highlighted,
       this.createdAt,
       new Date()
     );

@@ -29,12 +29,17 @@ import {
 } from "@domain/errors/restaurant.errors";
 import { UserNotFoundError } from "@domain/errors/auth.errors";
 
+const PICKUP_FEE = 2.5;
+const PRICE_PER_KM = 1.5;
+const MIN_DELIVERY_FEE = 3.0;
+const MAX_DELIVERY_FEE = 15.0;
+
 export type CreateOrderInput = {
   cartId: string;
   clientId: string;
   deliveryAddress: Address;
   paymentMethod: PaymentMethod;
-  serviceFeeRate: number; // (0.2 is 20% for exmple)
+  serviceFeeRate: number;
 };
 
 export type CreateOrderOutput = {
@@ -96,10 +101,10 @@ export class CreateOrderUseCase {
         return Result.Failed(new UserNotFoundError());
       }
 
-      const pickupFeeResult = Price.create(2.5);
-      const pricePerKmResult = Price.create(1.5);
-      const minDeliveryFeeResult = Price.create(3.0);
-      const maxDeliveryFeeResult = Price.create(15.0);
+      const pickupFeeResult = Price.create(PICKUP_FEE);
+      const pricePerKmResult = Price.create(PRICE_PER_KM);
+      const minDeliveryFeeResult = Price.create(MIN_DELIVERY_FEE);
+      const maxDeliveryFeeResult = Price.create(MAX_DELIVERY_FEE);
 
       if (
         !pickupFeeResult.success ||
@@ -252,7 +257,7 @@ export class CreateOrderUseCase {
           paidOrder,
           "ORDER_CREATED",
           restaurant.ownerId,
-          restaurant.phone.getValue(), // Assuming restaurant has contact email
+          restaurant.phone.getValue(),
         );
       } catch (notificationError) {
         console.error("Failed to send notifications:", notificationError);

@@ -1,6 +1,8 @@
 import { Price } from '@domain/value-objects/price.value-object';
 import { Address } from '@domain/value-objects/address.value-object';
 import { OrderItem } from './order-item.entity';
+
+const ESTIMATED_TRANSIT_MINUTES = 15;
 import {
   EmptyOrderError,
   InvalidOrderStatusTransitionError,
@@ -482,7 +484,7 @@ export class Order {
 
     const estimatedTime = new Date(this.acceptedAt);
     estimatedTime.setMinutes(
-      estimatedTime.getMinutes() + this.preparationTimeMinutes + 15 // hard coded delivery time
+      estimatedTime.getMinutes() + this.preparationTimeMinutes + ESTIMATED_TRANSIT_MINUTES
     );
 
     return estimatedTime;
