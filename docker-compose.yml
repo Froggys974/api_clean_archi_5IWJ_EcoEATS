@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecoeats_postgres
+    environment:
+      POSTGRES_USER: ecoeats
+      POSTGRES_PASSWORD: ecoeats
+      POSTGRES_DB: ecoeats
+    ports:
+      - "5433:5432"
+    volumes:
+      - ecoeats_pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    container_name: ecoeats_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  ecoeats_pgdata:

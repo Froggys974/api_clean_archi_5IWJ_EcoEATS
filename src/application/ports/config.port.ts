@@ -10,9 +10,13 @@ export interface Env {
   JWT_EXPIRES_IN: string;
   BCRYPT_SALT_ROUNDS: string;
   FRONTEND_URL?: string;
+  // DB_ADAPTER=in-memory | postgres (auth)
+  DB_ADAPTER?: string;
+  // Required when DB_ADAPTER=postgres (pareil, auth)
+  DATABASE_URL?: string;
 }
 
 export interface ConfigPort {
   get<K extends keyof Env>(key: K): Env[K];
-  getOrThrow<K extends keyof Env>(key: K): Env[K];
+  getOrThrow<K extends keyof Env>(key: K): NonNullable<Env[K]>;
 }

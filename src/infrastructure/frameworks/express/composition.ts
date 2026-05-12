@@ -4,9 +4,12 @@ import { TokenService } from '@infrastructure/services/token.service';
 import { InMemoryPaymentService } from '@infrastructure/services/payment.service';
 import { InMemoryNotificationService } from '@infrastructure/services/notification.service';
 import { HaversineDistanceCalculatorService } from '@infrastructure/services/distance-calculator.service';
+import { UserRepository } from '@application/repositories/user.repository';
 
 // Repositories
 import { UserInMemoryRepository } from '@infrastructure/repositories/in-memory/user.in-memory.repository';
+import { UserPostgresRepository } from '@infrastructure/repositories/postgres/user.postgres.repository';
+import { createDrizzleClient } from '@infrastructure/repositories/postgres/drizzle.client';
 import { ClientProfileInMemoryRepository } from '@infrastructure/repositories/in-memory/client-profile.in-memory.repository';
 import { CourierProfileInMemoryRepository } from '@infrastructure/repositories/in-memory/courier-profile.in-memory.repository';
 import { RestaurantOwnerProfileInMemoryRepository } from '@infrastructure/repositories/in-memory/restaurant-owner-profile.in-memory.repository';
@@ -105,8 +108,12 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   const notificationService = new InMemoryNotificationService();
   const distanceCalculator = new HaversineDistanceCalculatorService();
 
-  // Repositories
-  const userRepository = new UserInMemoryRepository();
+  // DB_ADAPTER=in-memory (default) | postgres (auth only)
+  const dbAdapter = config.get('DB_ADAPTER') ?? 'in-memory';
+  const userRepository: UserRepository =
+    dbAdapter === 'postgres'
+      ? new UserPostgresRepository(createDrizzleClient(config.getOrThrow('DATABASE_URL')))
+      : new UserInMemoryRepository();
   const clientProfileRepository = new ClientProfileInMemoryRepository();
   const courierProfileRepository = new CourierProfileInMemoryRepository();
   const restaurantOwnerProfileRepository = new RestaurantOwnerProfileInMemoryRepository();
@@ -120,7 +127,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   const categoryRepository = new CategoryInMemoryRepository();
   const offerRepository = new OfferInMemoryRepository();
 
-  // Seed
+  // Seed — idempotent for postgres (onConflictDoNothing on UserRepository.create)
   await seedDatabase({
     userRepository, restaurantRepository, dishRepository, categoryRepository,
     offerRepository, walletRepository, restaurantOwnerProfileRepository,

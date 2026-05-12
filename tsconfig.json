@@ -50,5 +50,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "exclude": ["test-domain.ts", "node_modules", "dist"]
+  "exclude": ["test-domain.ts", "node_modules", "dist", "drizzle.config.ts", "jest.config.js", "**/*.spec.ts"]
 }
