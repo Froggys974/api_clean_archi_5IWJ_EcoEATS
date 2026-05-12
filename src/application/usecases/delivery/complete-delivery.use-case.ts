@@ -8,6 +8,7 @@ import { WalletRepository } from "@application/repositories/wallet.repository";
 import { OrderRepository } from "@application/repositories/order.repository";
 import { CourierProfileRepository } from "@application/repositories/courier-profile.repository";
 import { NotificationPort } from "@application/ports/notification.port";
+import { LoggerPort } from "@application/ports/logger.port";
 import {
   DeliveryNotFoundError,
   DeliveryAlreadyCompletedError,
@@ -42,6 +43,7 @@ export class CompleteDeliveryUseCase {
     private readonly orderRepository: OrderRepository,
     private readonly courierProfileRepository: CourierProfileRepository,
     private readonly notificationService: NotificationPort,
+    private readonly logger: LoggerPort,
   ) {}
 
   async execute(
@@ -90,14 +92,14 @@ export class CompleteDeliveryUseCase {
 
       if (!wallet) {
         wallet = Wallet.create({
-          id: this.generateWalletId(),
+          id: crypto.randomUUID(),
           courierId: input.courierId,
           balance: earnings,
         });
         await this.walletRepository.create(wallet);
       } else {
         wallet = wallet.addDeliveryEarning(
-          this.generateTransactionId(),
+          crypto.randomUUID(),
           earnings,
           delivery.id,
         );
@@ -131,7 +133,7 @@ export class CompleteDeliveryUseCase {
           undefined,
         );
       } catch (notificationError) {
-        console.error("Failed to send notifications:", notificationError);
+        this.logger.error('Failed to send notifications', notificationError, 'CompleteDeliveryUseCase');
       }
 
       const distanceFeeResult = completedDelivery.pricePerKm.multiply(
@@ -173,11 +175,4 @@ export class CompleteDeliveryUseCase {
     }
   }
 
-  private generateWalletId(): string {
-    return `wallet-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
-
-  private generateTransactionId(): string {
-    return `txn-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
 }

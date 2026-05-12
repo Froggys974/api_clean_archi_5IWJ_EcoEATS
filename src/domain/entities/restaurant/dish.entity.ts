@@ -3,6 +3,9 @@ import { Allergen } from '@domain/value-objects/allergen.value-object';
 import {
   InvalidStockQuantityError,
   InsufficientStockError,
+  InvalidDishFieldError,
+  InvalidStockOperationError,
+  StockExceedsDailyLimitError,
 } from '@domain/errors/restaurant.errors';
 
 type CreateDishProps = {
@@ -70,15 +73,15 @@ export class Dish {
 
   private validate(): void {
     if (!this.id || this.id.trim().length === 0) {
-      throw new Error('Dish id is required');
+      throw new InvalidDishFieldError('id');
     }
 
     if (!this.name || this.name.trim().length === 0) {
-      throw new Error('Dish name is required');
+      throw new InvalidDishFieldError('name');
     }
 
     if (!this.description || this.description.trim().length === 0) {
-      throw new Error('Dish description is required');
+      throw new InvalidDishFieldError('description');
     }
 
     if (this.dailyStock < 0) {
@@ -90,7 +93,7 @@ export class Dish {
     }
 
     if (this.availableStock > this.dailyStock) {
-      throw new Error('Available stock cannot exceed daily stock');
+      throw new StockExceedsDailyLimitError(this.availableStock, this.dailyStock);
     }
   }
 
@@ -136,7 +139,7 @@ export class Dish {
 
   decreaseStock(quantity: number): Dish {
     if (quantity <= 0) {
-      throw new Error('Quantity to decrease must be positive');
+      throw new InvalidStockOperationError('Quantity to decrease must be positive');
     }
 
     if (this.availableStock < quantity) {
@@ -162,13 +165,13 @@ export class Dish {
 
   increaseStock(quantity: number): Dish {
     if (quantity <= 0) {
-      throw new Error('Quantity to increase must be positive');
+      throw new InvalidStockOperationError('Quantity to increase must be positive');
     }
 
     const newAvailableStock = this.availableStock + quantity;
 
     if (newAvailableStock > this.dailyStock) {
-      throw new Error('Cannot increase stock beyond daily stock limit');
+      throw new StockExceedsDailyLimitError(newAvailableStock, this.dailyStock);
     }
 
     return new Dish(

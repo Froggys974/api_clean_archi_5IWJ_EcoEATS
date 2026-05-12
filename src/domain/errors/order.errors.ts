@@ -99,3 +99,24 @@ export class OrderNotAssignedToCourierError extends Error {
     this.name = 'OrderNotAssignedToCourierError';
   }
 }
+
+export class InvalidOrderFieldError extends Error {
+  constructor(field: string) {
+    super(`Order ${field} is required`);
+    this.name = 'InvalidOrderFieldError';
+  }
+}
+
+export class InvalidOrderItemFieldError extends Error {
+  constructor(field: string) {
+    super(`Order item ${field} is required or invalid`);
+    this.name = 'InvalidOrderItemFieldError';
+  }
+}
+
+export class InvalidOrderItemQuantityError extends Error {
+  constructor(quantity: number) {
+    super(`Invalid order item quantity: ${quantity}. Must be a positive integer`);
+    this.name = 'InvalidOrderItemQuantityError';
+  }
+}

@@ -61,7 +61,7 @@ export class MarkOrderReadyUseCase {
       );
 
       const delivery = Delivery.create({
-        id: `delivery-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         orderId,
         restaurantId: restaurant.id,
         restaurantAddress: restaurant.address,

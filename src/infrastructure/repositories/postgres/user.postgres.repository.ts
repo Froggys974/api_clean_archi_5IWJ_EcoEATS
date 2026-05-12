@@ -10,11 +10,7 @@ export class UserPostgresRepository implements UserRepository {
   constructor(private readonly db: DrizzleClient) {}
 
   async findById(id: string): Promise<User | null> {
-    const rows = await this.db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, id))
-      .limit(1);
+    const rows = await this.db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
     return rows[0] ? UserMapper.toDomain(rows[0]) : null;
   }
 
@@ -37,10 +33,7 @@ export class UserPostgresRepository implements UserRepository {
   }
 
   async update(user: User): Promise<void> {
-    await this.db
-      .update(usersTable)
-      .set(UserMapper.toPersistence(user))
-      .where(eq(usersTable.id, user.id));
+    await this.db.update(usersTable).set(UserMapper.toPersistence(user)).where(eq(usersTable.id, user.id));
   }
 
   async delete(id: string): Promise<void> {

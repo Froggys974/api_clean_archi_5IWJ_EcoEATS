@@ -5,8 +5,6 @@ import { MarkOrderReadyUseCase } from '@application/usecases/order/mark-order-re
 import { ListOrdersByClientUseCase } from '@application/usecases/order/list-orders-by-client.use-case';
 import { ListOrdersByRestaurantUseCase } from '@application/usecases/order/list-orders-by-restaurant.use-case';
 import { GetOrderByIdUseCase } from '@application/usecases/order/get-order-by-id.use-case';
-import { GetOrCreateCartUseCase } from '@application/usecases/cart/get-or-create-cart.use-case';
-import { RestaurantRepository } from '@application/repositories/restaurant.repository';
 import { OrderPresenter } from '@interface/presenters/order.presenter';
 import { ControllerResponse, ErrorResponse } from '@interface/shared/controller-response';
 import { CheckoutDto, AcceptOrderDto, RefuseOrderDto } from '@interface/dtos/order.dto';
@@ -26,8 +24,6 @@ export class OrderController {
     private readonly listOrdersByClient: ListOrdersByClientUseCase,
     private readonly listOrdersByRestaurant: ListOrdersByRestaurantUseCase,
     private readonly getOrderByIdUseCase: GetOrderByIdUseCase,
-    private readonly getOrCreateCart: GetOrCreateCartUseCase,
-    private readonly restaurantRepository: RestaurantRepository,
   ) {}
 
   async handleCheckout(clientId: string, dto: CheckoutDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
@@ -78,19 +74,11 @@ export class OrderController {
   }
 
   async handleAcceptOrder(orderId: string, ownerId: string, dto: AcceptOrderDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    if (!dto.preparationTimeMinutes || dto.preparationTimeMinutes <= 0) {
-      return { statusCode: 400, data: OrderPresenter.error('preparationTimeMinutes must be positive') };
-    }
-
-    const restaurants = await this.restaurantRepository.findByOwnerId(ownerId);
-    if (restaurants.length === 0) return { statusCode: 404, data: OrderPresenter.error('Restaurant not found') };
-
     const result = await this.acceptOrderUseCase.execute({
       orderId,
-      restaurantId: restaurants[0]!.id,
+      ownerId,
       preparationTimeMinutes: dto.preparationTimeMinutes,
     });
-
     if (!result.success) return { statusCode: 400, data: OrderPresenter.error(result.error.message) };
     return { statusCode: 200, data: OrderPresenter.order(result.data.order) };
   }

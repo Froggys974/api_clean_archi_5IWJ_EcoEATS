@@ -14,6 +14,8 @@ export interface Env {
   DB_ADAPTER?: string;
   // Required when DB_ADAPTER=postgres (pareil, auth)
   DATABASE_URL?: string;
+  NEST_PORT?: string;
+
 }
 
 export interface ConfigPort {

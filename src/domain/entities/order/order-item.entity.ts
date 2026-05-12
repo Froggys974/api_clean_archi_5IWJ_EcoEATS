@@ -1,4 +1,5 @@
 import { Price } from "@domain/value-objects/price.value-object";
+import { InvalidOrderItemFieldError, InvalidOrderItemQuantityError } from "@domain/errors/order.errors";
 
 type CreateOrderItemProps = {
   id: string;
@@ -34,21 +35,19 @@ export class OrderItem {
 
   private validate(): void {
     if (!this.id || this.id.trim().length === 0) {
-      throw new Error("Order item id is required");
+      throw new InvalidOrderItemFieldError('id');
     }
 
     if (!this.dishId || this.dishId.trim().length === 0) {
-      throw new Error("Dish id is required");
+      throw new InvalidOrderItemFieldError('dish id');
     }
 
     if (!this.dishName || this.dishName.trim().length === 0) {
-      throw new Error("Dish name is required");
+      throw new InvalidOrderItemFieldError('dish name');
     }
 
     if (this.quantity <= 0 || !Number.isInteger(this.quantity)) {
-      throw new Error(
-        `Invalid order item quantity: ${this.quantity}. Quantity must be a positive integer`,
-      );
+      throw new InvalidOrderItemQuantityError(this.quantity);
     }
   }
 

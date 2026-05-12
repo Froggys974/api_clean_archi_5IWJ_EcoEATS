@@ -1,5 +1,5 @@
 import { DotenvConfigService } from '@infrastructure/config/dotenv-config.service';
-import { createComposition } from './composition';
+import { createComposition } from '@infrastructure/composition';
 import { createApp } from './app';
 
 async function bootstrap() {

@@ -1,6 +1,11 @@
 import { Address } from '@domain/value-objects/address.value-object';
 import { Phone } from '@domain/value-objects/phone.value-object';
 import { Dish } from './dish.entity';
+import {
+  InvalidRestaurantFieldError,
+  InvalidRestaurantRatingError,
+  InvalidOpeningHoursError,
+} from '@domain/errors/restaurant.errors';
 
 export type RestaurantStatus = 'OPEN' | 'CLOSED' | 'TEMPORARILY_CLOSED';
 
@@ -79,27 +84,27 @@ export class Restaurant {
 
   private validate(): void {
     if (!this.id || this.id.trim().length === 0) {
-      throw new Error('Restaurant id is required');
+      throw new InvalidRestaurantFieldError('id');
     }
 
     if (!this.ownerId || this.ownerId.trim().length === 0) {
-      throw new Error('Restaurant owner id is required');
+      throw new InvalidRestaurantFieldError('owner id');
     }
 
     if (!this.name || this.name.trim().length === 0) {
-      throw new Error('Restaurant name is required');
+      throw new InvalidRestaurantFieldError('name');
     }
 
     if (!this.description || this.description.trim().length === 0) {
-      throw new Error('Restaurant description is required');
+      throw new InvalidRestaurantFieldError('description');
     }
 
     if (!this.cuisineType || this.cuisineType.trim().length === 0) {
-      throw new Error('Restaurant cuisine type is required');
+      throw new InvalidRestaurantFieldError('cuisine type');
     }
 
     if (this.rating < 0 || this.rating > 5) {
-      throw new Error('Restaurant rating must be between 0 and 5');
+      throw new InvalidRestaurantRatingError(this.rating);
     }
 
     this.validateOpeningHours();
@@ -108,15 +113,15 @@ export class Restaurant {
   private validateOpeningHours(): void {
     for (const hours of this.openingHours) {
       if (hours.dayOfWeek < 0 || hours.dayOfWeek > 6) {
-        throw new Error('Day of week must be between 0 (Sunday) and 6 (Saturday)');
+        throw new InvalidOpeningHoursError('day of week must be between 0 (Sunday) and 6 (Saturday)');
       }
 
       if (!this.isValidTimeFormat(hours.openTime)) {
-        throw new Error(`Invalid open time format: ${hours.openTime}. Expected HH:MM`);
+        throw new InvalidOpeningHoursError(`invalid open time: ${hours.openTime}. Expected HH:MM`);
       }
 
       if (!this.isValidTimeFormat(hours.closeTime)) {
-        throw new Error(`Invalid close time format: ${hours.closeTime}. Expected HH:MM`);
+        throw new InvalidOpeningHoursError(`invalid close time: ${hours.closeTime}. Expected HH:MM`);
       }
     }
   }
@@ -212,7 +217,7 @@ export class Restaurant {
 
   updateRating(newRating: number): Restaurant {
     if (newRating < 0 || newRating > 5) {
-      throw new Error('Rating must be between 0 and 5');
+      throw new InvalidRestaurantRatingError(newRating);
     }
 
     return new Restaurant(
