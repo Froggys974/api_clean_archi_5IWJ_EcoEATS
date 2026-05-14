@@ -30,7 +30,7 @@ export class Login {
 
     const payload: UserPayload = {
       id: user.id,
-      roles: user.roles.map(r => r.toLowerCase()),
+      roles: user.roles,
     };
 
     const token = this.tokenPort.generate(payload);

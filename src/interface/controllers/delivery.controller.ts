@@ -35,8 +35,9 @@ export class DeliveryController {
     return { statusCode: 200, data: DeliveryPresenter.delivery(result.data.delivery) };
   }
 
-  async handleComplete(deliveryId: string, courierId: string): Promise<ControllerResponse<unknown | ErrorResponse>> {
-    const result = await this.completeDelivery.execute({ deliveryId, courierId });
+  async handleComplete(deliveryId: string, courierId: string, deliveryCode: string): Promise<ControllerResponse<unknown | ErrorResponse>> {
+    if (!deliveryCode) return { statusCode: 400, data: DeliveryPresenter.error('Delivery code is required') };
+    const result = await this.completeDelivery.execute({ deliveryId, courierId, deliveryCode });
     if (!result.success) return { statusCode: 400, data: DeliveryPresenter.error(result.error.message) };
     return { statusCode: 200, data: { message: 'Delivery completed successfully' } };
   }

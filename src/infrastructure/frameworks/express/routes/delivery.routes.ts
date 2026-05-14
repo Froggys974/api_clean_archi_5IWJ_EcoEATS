@@ -37,7 +37,8 @@ export function deliveryRouter(
   });
 
   router.post('/:deliveryId/complete', courierGuard, async (req: Request, res: Response) => {
-    const response = await deliveryController.handleComplete(req.params['deliveryId'] as string, req.userId!);
+    const deliveryCode = req.body?.deliveryCode ?? '';
+    const response = await deliveryController.handleComplete(req.params['deliveryId'] as string, req.userId!, deliveryCode);
     res.status(response.statusCode).json(response.data);
   });
 

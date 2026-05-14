@@ -19,6 +19,7 @@ import { OrderNotFoundError } from "@domain/errors/order.errors";
 export type CompleteDeliveryInput = {
   deliveryId: string;
   courierId: string;
+  deliveryCode: string;
 };
 
 export type CompleteDeliveryOutput = {
@@ -78,12 +79,16 @@ export class CompleteDeliveryUseCase {
         );
       }
 
-      const completedDelivery = delivery.markAsDelivered();
       const order = await this.orderRepository.findById(delivery.orderId);
       if (!order) {
         return Result.Failed(new OrderNotFoundError(delivery.orderId));
       }
 
+      if (order.deliveryCode !== input.deliveryCode) {
+        return Result.Failed(new Error('Invalid delivery code'));
+      }
+
+      const completedDelivery = delivery.markAsDelivered();
       const deliveredOrder = order.markAsDelivered();
 
       const earnings = completedDelivery.calculateCourierEarnings();
