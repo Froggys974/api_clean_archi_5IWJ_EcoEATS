@@ -140,7 +140,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   // Auth use cases
   const registerClient = new RegisterClient(userRepository, clientProfileRepository, hashService);
   const registerCourier = new RegisterCourier(userRepository, courierProfileRepository, hashService);
-  const registerRestaurantOwner = new RegisterRestaurantOwner(userRepository, restaurantOwnerProfileRepository, hashService);
+  const registerRestaurantOwner = new RegisterRestaurantOwner(userRepository, restaurantOwnerProfileRepository, restaurantRepository, hashService);
   const login = new Login(userRepository, hashService, tokenService);
 
   // Restaurant use cases
