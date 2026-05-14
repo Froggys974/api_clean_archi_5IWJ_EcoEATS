@@ -12,6 +12,7 @@ import { OrderRepository } from "@application/repositories/order.repository";
 import { InvoiceRepository } from "@application/repositories/invoice.repository";
 import { RestaurantRepository } from "@application/repositories/restaurant.repository";
 import { UserRepository } from "@application/repositories/user.repository";
+import { DishRepository } from "@application/repositories/dish.repository";
 import { DistanceCalculatorPort } from "@application/ports/distance-calculator.port";
 import { PaymentPort, PaymentMethod } from "@application/ports/payment.port";
 import { NotificationPort } from "@application/ports/notification.port";
@@ -50,6 +51,7 @@ export class CreateOrderUseCase {
     private readonly invoiceRepository: InvoiceRepository,
     private readonly restaurantRepository: RestaurantRepository,
     private readonly userRepository: UserRepository,
+    private readonly dishRepository: DishRepository,
     private readonly distanceCalculator: DistanceCalculatorPort,
     private readonly paymentService: PaymentPort,
     private readonly notificationService: NotificationPort,
@@ -200,6 +202,19 @@ export class CreateOrderUseCase {
       }
 
       const paidOrder = order.markAsPaid(paymentResult.paymentId);
+
+      const dishStockUpdates = await Promise.all(
+        cart.items.map(async (cartItem) => {
+          const dish = await this.dishRepository.findById(cartItem.dishId);
+          if (!dish) return null;
+          return dish.decreaseStock(cartItem.quantity);
+        }),
+      );
+
+      const updatedDishes = dishStockUpdates.filter((d): d is NonNullable<typeof d> => d !== null);
+      if (updatedDishes.length > 0) {
+        await this.dishRepository.bulkUpdate(updatedDishes);
+      }
 
       const invoiceNumber =
         await this.invoiceRepository.generateInvoiceNumber();

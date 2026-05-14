@@ -169,7 +169,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   // Order use cases
   const createOrderUC = new CreateOrderUseCase(
     cartRepository, orderRepository, invoiceRepository, restaurantRepository,
-    userRepository, distanceCalculator, paymentService, notificationService, logger,
+    userRepository, dishRepository, distanceCalculator, paymentService, notificationService, logger,
   );
   const acceptOrderUC = new AcceptOrderUseCase(
     orderRepository, restaurantRepository, userRepository, notificationService, logger,
