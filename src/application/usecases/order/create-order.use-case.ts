@@ -18,6 +18,7 @@ import {
 } from "@application/ports/distance-calculator.port";
 import { PaymentPort, PaymentMethod } from "@application/ports/payment.port";
 import { NotificationPort } from "@application/ports/notification.port";
+import { LoggerPort } from "@application/ports/logger.port";
 import {
   CartNotFoundError,
   EmptyCartError,
@@ -58,6 +59,7 @@ export class CreateOrderUseCase {
     private readonly distanceCalculator: DistanceCalculatorPort,
     private readonly paymentService: PaymentPort,
     private readonly notificationService: NotificationPort,
+    private readonly logger: LoggerPort,
   ) {}
 
   async execute(
@@ -162,7 +164,7 @@ export class CreateOrderUseCase {
           quantity: number;
           specialInstructions?: string;
         } = {
-          id: this.generateOrderItemId(),
+          id: crypto.randomUUID(),
           dishId: cartItem.dishId,
           dishName: cartItem.dishName,
           dishPrice: cartItem.dishPrice,
@@ -176,7 +178,7 @@ export class CreateOrderUseCase {
         return OrderItem.create(orderItemProps);
       });
 
-      const orderId = this.generateOrderId();
+      const orderId = crypto.randomUUID();
       const order = Order.create({
         id: orderId,
         clientId: input.clientId,
@@ -219,7 +221,7 @@ export class CreateOrderUseCase {
       }));
 
       const invoice = Invoice.create({
-        id: this.generateInvoiceId(),
+        id: crypto.randomUUID(),
         orderId: paidOrder.id,
         invoiceNumber,
         clientId: input.clientId,
@@ -260,7 +262,7 @@ export class CreateOrderUseCase {
           restaurant.phone.getValue(),
         );
       } catch (notificationError) {
-        console.error("Failed to send notifications:", notificationError);
+        this.logger.error('Failed to send notifications', notificationError, 'CreateOrderUseCase');
       }
 
       return Result.Success({
@@ -269,32 +271,9 @@ export class CreateOrderUseCase {
         paymentId: paymentResult.paymentId,
       });
     } catch (error) {
-      if (
-        error instanceof CartNotFoundError ||
-        error instanceof EmptyCartError ||
-        error instanceof CartAlreadyCheckedOutError ||
-        error instanceof RestaurantNotFoundError ||
-        error instanceof RestaurantClosedError ||
-        error instanceof UserNotFoundError
-      ) {
-        return Result.Failed(error);
-      }
-
       return Result.Failed(
-        new Error(`Failed to create order: ${(error as Error).message}`),
+        error instanceof Error ? error : new Error('Unexpected error creating order'),
       );
     }
-  }
-
-  private generateOrderId(): string {
-    return `order-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
-
-  private generateOrderItemId(): string {
-    return `order-item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-  }
-
-  private generateInvoiceId(): string {
-    return `invoice-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   }
 }

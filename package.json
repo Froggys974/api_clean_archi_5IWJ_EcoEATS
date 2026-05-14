@@ -8,28 +8,53 @@
   "main": "index.js",
   "scripts": {
     "dev:express": "nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/infrastructure/frameworks/express/index.ts",
+    "dev:nest": "nodemon --watch src --ext ts --exec \"ts-node -P tsconfig.nest.json -r tsconfig-paths/register -r reflect-metadata src/infrastructure/frameworks/nest/main.ts\"",
+    "dev:all": "concurrently \"npm run dev:express\" \"npm run dev:nest\"",
     "build": "tsc && tsc-alias",
-    "start:express": "npm run build && node dist/infrastructure/frameworks/express/index.js"
+    "start:express": "npm run build && node dist/infrastructure/frameworks/express/index.js",
+    "seed": "ts-node -r tsconfig-paths/register src/infrastructure/seed/seed-cli.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "db:generate": "cross-env DATABASE_URL=postgresql://ecoeats:ecoeats@localhost:5433/ecoeats drizzle-kit generate",
+    "db:migrate": "cross-env DATABASE_URL=postgresql://ecoeats:ecoeats@localhost:5433/ecoeats drizzle-kit migrate",
+    "db:push": "cross-env DATABASE_URL=postgresql://ecoeats:ecoeats@localhost:5433/ecoeats drizzle-kit push",
+    "db:studio": "cross-env DATABASE_URL=postgresql://ecoeats:ecoeats@localhost:5433/ecoeats drizzle-kit studio",
+    "seed:postgres": "cross-env DB_ADAPTER=postgres ts-node -r tsconfig-paths/register src/infrastructure/seed/seed-cli.ts",
+    "setup:postgres": "docker compose up -d && wait-on tcp:localhost:5433 && npm run db:migrate && npm run seed:postgres"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.2.3",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "drizzle-kit": "^0.31.10",
+    "jest": "^30.4.2",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.14",
+    "ts-jest": "^29.4.9",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.10"
   },
   "dependencies": {
-    "@types/morgan": "^1.9.10",
+    "@nestjs/common": "^11.1.19",
+    "@nestjs/core": "^11.1.19",
+    "@nestjs/platform-express": "^11.1.19",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "postgres": "^3.4.9",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
     "ts-node": "^10.9.2"
   }
 }

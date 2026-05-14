@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "node16",
+    "moduleResolution": "node16",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "ES2021",
+    "strictPropertyInitialization": false
+  },
+  "exclude": ["node_modules", "dist", "test-domain.ts", "drizzle.config.ts", "jest.config.js", "**/*.spec.ts"]
+}

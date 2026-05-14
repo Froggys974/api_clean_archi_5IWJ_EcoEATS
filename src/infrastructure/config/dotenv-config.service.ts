@@ -8,9 +8,9 @@ export class DotenvConfigService implements ConfigPort {
     return process.env[key as string] as Env[K];
   }
 
-  getOrThrow<K extends keyof Env>(key: K): Env[K] {
+  getOrThrow<K extends keyof Env>(key: K): NonNullable<Env[K]> {
     const value = process.env[key as string];
     if (!value) throw new Error(`Missing environment variable: ${String(key)}`);
-    return value as Env[K];
+    return value as NonNullable<Env[K]>;
   }
 }

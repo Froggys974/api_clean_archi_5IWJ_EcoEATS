@@ -5,6 +5,7 @@ import { DeliveryRepository } from "@application/repositories/delivery.repositor
 import { CourierProfileRepository } from "@application/repositories/courier-profile.repository";
 import { RestaurantRepository } from "@application/repositories/restaurant.repository";
 import { NotificationPort } from "@application/ports/notification.port";
+import { LoggerPort } from "@application/ports/logger.port";
 import {
   DeliveryNotFoundError,
   DeliveryAlreadyAcceptedError,
@@ -34,6 +35,7 @@ export class AcceptDeliveryUseCase {
     private readonly courierProfileRepository: CourierProfileRepository,
     private readonly restaurantRepository: RestaurantRepository,
     private readonly notificationService: NotificationPort,
+    private readonly logger: LoggerPort,
   ) {}
 
   async execute(
@@ -132,7 +134,7 @@ export class AcceptDeliveryUseCase {
           );
         }
       } catch (notificationError) {
-        console.error("Failed to send notifications:", notificationError);
+        this.logger.error('Failed to send notifications', notificationError, 'AcceptDeliveryUseCase');
       }
 
       return Result.Success({

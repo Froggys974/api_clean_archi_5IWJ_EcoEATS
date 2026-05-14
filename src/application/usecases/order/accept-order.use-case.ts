@@ -4,6 +4,7 @@ import { OrderRepository } from '@application/repositories/order.repository';
 import { RestaurantRepository } from '@application/repositories/restaurant.repository';
 import { NotificationPort } from '@application/ports/notification.port';
 import { UserRepository } from '@application/repositories/user.repository';
+import { LoggerPort } from '@application/ports/logger.port';
 import {
   OrderNotFoundError,
   OrderNotPaidError,
@@ -12,11 +13,10 @@ import {
   InvalidPreparationTimeError,
 } from '@domain/errors/order.errors';
 import { RestaurantNotFoundError } from '@domain/errors/restaurant.errors';
-import { UserNotFoundError } from '@domain/errors/auth.errors';
 
 export type AcceptOrderInput = {
   orderId: string;
-  restaurantId: string;
+  ownerId: string;
   preparationTimeMinutes: number;
 };
 
@@ -30,7 +30,8 @@ export class AcceptOrderUseCase {
     private readonly orderRepository: OrderRepository,
     private readonly restaurantRepository: RestaurantRepository,
     private readonly userRepository: UserRepository,
-    private readonly notificationService: NotificationPort
+    private readonly notificationService: NotificationPort,
+    private readonly logger: LoggerPort,
   ) {}
 
   async execute(
@@ -38,33 +39,28 @@ export class AcceptOrderUseCase {
   ): Promise<ResultType<AcceptOrderOutput, Error>> {
     try {
       if (input.preparationTimeMinutes <= 0) {
-        return Result.Failed(
-          new InvalidPreparationTimeError(input.preparationTimeMinutes)
-        );
+        return Result.Failed(new InvalidPreparationTimeError(input.preparationTimeMinutes));
       }
+
+      const restaurants = await this.restaurantRepository.findByOwnerId(input.ownerId);
+      if (restaurants.length === 0) {
+        return Result.Failed(new RestaurantNotFoundError(input.ownerId));
+      }
+      const restaurant = restaurants[0]!;
 
       const order = await this.orderRepository.findById(input.orderId);
       if (!order) {
         return Result.Failed(new OrderNotFoundError(input.orderId));
       }
 
-      if (!order.belongsToRestaurant(input.restaurantId)) {
-        return Result.Failed(
-          new OrderNotAssignedToRestaurantError(input.orderId, input.restaurantId)
-        );
-      }
-
-      const restaurant = await this.restaurantRepository.findById(input.restaurantId);
-      if (!restaurant) {
-        return Result.Failed(new RestaurantNotFoundError(input.restaurantId));
+      if (!order.belongsToRestaurant(restaurant.id)) {
+        return Result.Failed(new OrderNotAssignedToRestaurantError(input.orderId, restaurant.id));
       }
 
       const acceptedOrder = order.accept(input.preparationTimeMinutes);
 
       const estimatedReadyAt = new Date();
-      estimatedReadyAt.setMinutes(
-        estimatedReadyAt.getMinutes() + input.preparationTimeMinutes
-      );
+      estimatedReadyAt.setMinutes(estimatedReadyAt.getMinutes() + input.preparationTimeMinutes);
 
       await this.orderRepository.update(acceptedOrder);
 
@@ -81,27 +77,13 @@ export class AcceptOrderUseCase {
           );
         }
       } catch (notificationError) {
-        console.error('Failed to send notification to client:', notificationError);
+        this.logger.error('Failed to send notification to client', notificationError, 'AcceptOrderUseCase');
       }
 
-      return Result.Success({
-        order: acceptedOrder,
-        estimatedReadyAt,
-      });
+      return Result.Success({ order: acceptedOrder, estimatedReadyAt });
     } catch (error) {
-      if (
-        error instanceof OrderNotFoundError ||
-        error instanceof OrderNotPaidError ||
-        error instanceof OrderAlreadyAcceptedError ||
-        error instanceof OrderNotAssignedToRestaurantError ||
-        error instanceof InvalidPreparationTimeError ||
-        error instanceof RestaurantNotFoundError
-      ) {
-        return Result.Failed(error);
-      }
-
       return Result.Failed(
-        new Error(`Failed to accept order: ${(error as Error).message}`)
+        error instanceof Error ? error : new Error('Unexpected error accepting order')
       );
     }
   }

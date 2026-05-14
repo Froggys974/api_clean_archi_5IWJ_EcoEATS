@@ -7,12 +7,11 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./src",
     "paths": {
-      "@application/*": ["application/*"],
-      "@domain/*": ["domain/*"],
-      "@infrastructure/*": ["infrastructure/*"],
-      "@interface/*": ["interface/*"]
+      "@application/*": ["./src/application/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@interface/*": ["./src/interface/*"]
     },
 
     // Environment Settings
@@ -50,5 +49,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "exclude": ["test-domain.ts", "node_modules", "dist"]
+  "exclude": ["test-domain.ts", "node_modules", "dist", "drizzle.config.ts", "jest.config.js", "**/*.spec.ts", "src/infrastructure/frameworks/nest"]
 }

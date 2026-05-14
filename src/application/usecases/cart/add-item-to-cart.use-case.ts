@@ -69,7 +69,7 @@ export class AddItemToCartUseCase {
         quantity: number;
         specialInstructions?: string;
       } = {
-        id: this.generateCartItemId(),
+        id: crypto.randomUUID(),
         dishId: dish.id,
         dishName: dish.name,
         dishPrice: dish.price,
@@ -91,23 +91,9 @@ export class AddItemToCartUseCase {
         itemAdded: cartItem,
       });
     } catch (error) {
-      if (
-        error instanceof CartNotFoundError ||
-        error instanceof DishNotFoundError ||
-        error instanceof DishOutOfStockError ||
-        error instanceof InsufficientStockError ||
-        error instanceof DifferentRestaurantInCartError
-      ) {
-        return Result.Failed(error);
-      }
-
       return Result.Failed(
-        new Error(`Failed to add item to cart: ${(error as Error).message}`),
+        error instanceof Error ? error : new Error('Unexpected error adding item to cart'),
       );
     }
-  }
-
-  private generateCartItemId(): string {
-    return `cart-item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   }
 }
