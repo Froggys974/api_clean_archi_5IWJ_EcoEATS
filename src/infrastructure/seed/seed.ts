@@ -86,12 +86,20 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantOwnerProfileRepository.create(RestaurantOwnerProfile.create({ id: 'rop-2', user: ownerUser2, phone: ownerPhone2.data }));
   }
 
+  const burgerOwnerEmail = Email.create('burgerowner@mail.fr');
+  const burgerOwnerPhone = Phone.create('0600000060');
+  if (burgerOwnerEmail.success && burgerOwnerPhone.success) {
+    const burgerOwnerUser = User.create({ id: 'demo-burger-owner', email: burgerOwnerEmail.data, passwordHash, firstName: 'Marc', lastName: 'Burger', roles: ['RESTAURATEUR'] });
+    await userRepository.create(burgerOwnerUser);
+    await restaurantOwnerProfileRepository.create(RestaurantOwnerProfile.create({ id: 'rop-3', user: burgerOwnerUser, phone: burgerOwnerPhone.data }));
+  }
+
   const courierEmail = Email.create('livreur@mail.fr');
   const courierPhone = Phone.create('0600000003');
   if (courierEmail.success && courierPhone.success) {
     const courierUser = User.create({ id: 'demo-courier-1', email: courierEmail.data, passwordHash, firstName: 'Jean', lastName: 'Dupont', roles: ['COURIER'] });
     await userRepository.create(courierUser);
-    const courierProfile = CourierProfile.create({ id: 'crp-1', user: courierUser, phone: courierPhone.data });
+    const courierProfile = CourierProfile.create({ id: 'crp-1', user: courierUser, phone: courierPhone.data, status: 'AVAILABLE' });
     await courierProfileRepository.create(courierProfile);
     await walletRepository.create(Wallet.create({ id: 'wallet-1', courierId: 'demo-courier-1', balance: makePrice(42.30) }));
   }
@@ -139,7 +147,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
   const burgerPhone = Phone.create('0600000030');
   if (burgerPhone.success) {
     await restaurantRepository.create(Restaurant.create({
-      id: 'resto-3', ownerId: 'demo-owner-1', name: 'Burger House',
+      id: 'resto-3', ownerId: 'demo-burger-owner', name: 'Burger House',
       description: 'Burgers artisanaux avec des ingrédients locaux.',
       address: makeAddress('5 rue Montmartre', 'Paris', 48.8630, 2.3470),
       phone: burgerPhone.data, cuisineType: 'American',

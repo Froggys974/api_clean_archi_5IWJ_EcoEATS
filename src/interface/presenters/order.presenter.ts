@@ -23,6 +23,7 @@ export class OrderPresenter {
         postalCode: o.deliveryAddress.getPostalCode(),
         country: o.deliveryAddress.getCountry(),
       },
+      deliveryCode: o.deliveryCode,
       itemsTotal: o.itemsTotal.getAmount(),
       deliveryFee: o.deliveryFee.getAmount(),
       serviceFee: o.serviceFee.getAmount(),

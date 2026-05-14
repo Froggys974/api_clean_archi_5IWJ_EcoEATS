@@ -58,11 +58,12 @@ export class AcceptOrderUseCase {
       }
 
       const acceptedOrder = order.accept(input.preparationTimeMinutes);
+      const preparingOrder = acceptedOrder.startPreparing();
 
       const estimatedReadyAt = new Date();
       estimatedReadyAt.setMinutes(estimatedReadyAt.getMinutes() + input.preparationTimeMinutes);
 
-      await this.orderRepository.update(acceptedOrder);
+      await this.orderRepository.update(preparingOrder);
 
       try {
         const client = await this.userRepository.findById(order.clientId);
@@ -80,7 +81,7 @@ export class AcceptOrderUseCase {
         this.logger.error('Failed to send notification to client', notificationError, 'AcceptOrderUseCase');
       }
 
-      return Result.Success({ order: acceptedOrder, estimatedReadyAt });
+      return Result.Success({ order: preparingOrder, estimatedReadyAt });
     } catch (error) {
       return Result.Failed(
         error instanceof Error ? error : new Error('Unexpected error accepting order')

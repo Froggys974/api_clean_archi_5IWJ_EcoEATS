@@ -38,6 +38,7 @@ type CreateOrderProps = {
   deliveryFee: Price;
   serviceFee: Price;
   totalPrice: Price;
+  deliveryCode?: string;
   status?: OrderStatus;
   preparationTimeMinutes?: number;
   isPaid?: boolean;
@@ -63,6 +64,7 @@ export class Order {
     public readonly deliveryFee: Price,
     public readonly serviceFee: Price,
     public readonly totalPrice: Price,
+    public readonly deliveryCode: string,
     public readonly status: OrderStatus,
     public readonly preparationTimeMinutes: number | undefined,
     public readonly isPaid: boolean,
@@ -80,6 +82,7 @@ export class Order {
   }
 
   static create(props: CreateOrderProps): Order {
+    const deliveryCode = props.deliveryCode ?? String(Math.floor(1000 + Math.random() * 9000));
     return new Order(
       props.id,
       props.clientId,
@@ -90,6 +93,7 @@ export class Order {
       props.deliveryFee,
       props.serviceFee,
       props.totalPrice,
+      deliveryCode,
       props.status ?? 'PENDING',
       props.preparationTimeMinutes,
       props.isPaid ?? false,
@@ -141,6 +145,7 @@ export class Order {
       deliveryFee: this.deliveryFee,
       serviceFee: this.serviceFee,
       totalPrice: this.totalPrice,
+      deliveryCode: this.deliveryCode,
       status: this.status,
       isPaid: this.isPaid,
       createdAt: this.createdAt,

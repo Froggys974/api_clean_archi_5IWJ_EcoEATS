@@ -184,7 +184,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   const completeDeliveryUC = new CompleteDeliveryUseCase(deliveryRepository, walletRepository, orderRepository, courierProfileRepository, notificationService, logger);
   const listAvailableDeliveriesUC = new ListAvailableDeliveriesUseCase(deliveryRepository);
   const listMyDeliveriesUC = new ListMyDeliveriesUseCase(deliveryRepository);
-  const pickupDeliveryUC = new PickupDeliveryUseCase(deliveryRepository);
+  const pickupDeliveryUC = new PickupDeliveryUseCase(deliveryRepository, orderRepository);
   const setCourierAvailabilityUC = new SetCourierAvailabilityUseCase(courierProfileRepository);
 
   // Wallet use cases

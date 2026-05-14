@@ -7,8 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "dev:express": "nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/infrastructure/frameworks/express/index.ts",
-    "dev:nest": "nodemon --watch src --ext ts --exec \"ts-node -P tsconfig.nest.json -r tsconfig-paths/register -r reflect-metadata src/infrastructure/frameworks/nest/main.ts\"",
+    "dev:express": "cross-env DB_ADAPTER=in-memory nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/infrastructure/frameworks/express/index.ts",
+    "dev:express:pg": "cross-env DB_ADAPTER=postgres nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/infrastructure/frameworks/express/index.ts",
+    "dev:nest": "cross-env DB_ADAPTER=in-memory nodemon --watch src --ext ts --exec \"ts-node -P tsconfig.nest.json -r tsconfig-paths/register -r reflect-metadata src/infrastructure/frameworks/nest/main.ts\"",
     "dev:all": "concurrently \"npm run dev:express\" \"npm run dev:nest\"",
     "build": "tsc && tsc-alias",
     "start:express": "npm run build && node dist/infrastructure/frameworks/express/index.js",

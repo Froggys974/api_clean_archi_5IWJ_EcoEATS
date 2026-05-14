@@ -1,6 +1,7 @@
 import { Result, ResultType } from '@domain/shared/result';
 import { Delivery } from '@domain/entities/delivery/delivery.entity';
 import { DeliveryRepository } from '@application/repositories/delivery.repository';
+import { OrderRepository } from '@application/repositories/order.repository';
 import {
   DeliveryNotFoundError,
   DeliveryAlreadyPickedUpError,
@@ -16,7 +17,10 @@ export type PickupDeliveryInput = {
 export type PickupDeliveryOutput = { delivery: Delivery };
 
 export class PickupDeliveryUseCase {
-  constructor(private readonly deliveryRepository: DeliveryRepository) {}
+  constructor(
+    private readonly deliveryRepository: DeliveryRepository,
+    private readonly orderRepository: OrderRepository,
+  ) {}
 
   async execute(input: PickupDeliveryInput): Promise<ResultType<PickupDeliveryOutput, Error>> {
     try {
@@ -31,6 +35,16 @@ export class PickupDeliveryUseCase {
 
       const pickedUp = delivery.markAsPickedUp();
       await this.deliveryRepository.update(pickedUp);
+
+      // Advance order to DELIVERING so client tracking shows correct step
+      const order = await this.orderRepository.findById(delivery.orderId);
+      if (order) {
+        let updated = order;
+        if (order.status === 'READY_FOR_PICKUP') updated = updated.markAsPickedUp();
+        if (updated.status === 'PICKED_UP') updated = updated.startDelivering();
+        await this.orderRepository.update(updated);
+      }
+
       return Result.Success({ delivery: pickedUp });
     } catch (error) {
       if (
