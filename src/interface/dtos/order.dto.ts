@@ -4,6 +4,7 @@ export type CheckoutDto = {
   deliveryCity: string;
   deliveryPostalCode: string;
   deliveryCountry: string;
+  tipAmount?: number;
 };
 
 export type AcceptOrderDto = {

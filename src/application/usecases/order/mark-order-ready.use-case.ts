@@ -1,18 +1,13 @@
 import { Result, ResultType } from '@domain/shared/result';
 import { Order } from '@domain/entities/order/order.entity';
 import { Delivery } from '@domain/entities/delivery/delivery.entity';
-import { Price } from '@domain/value-objects/price.value-object';
 import { OrderRepository } from '@application/repositories/order.repository';
 import { RestaurantRepository } from '@application/repositories/restaurant.repository';
 import { DeliveryRepository } from '@application/repositories/delivery.repository';
 import { DistanceCalculatorPort } from '@application/ports/distance-calculator.port';
 import { OrderNotFoundError } from '@domain/errors/order.errors';
 import { RestaurantNotFoundError } from '@domain/errors/restaurant.errors';
-
-const PICKUP_FEE = 2.5;
-const PRICE_PER_KM = 1.5;
-const MIN_DELIVERY_FEE = 3.0;
-const MAX_DELIVERY_FEE = 15.0;
+import { buildPricingConfig } from '@application/config/delivery-pricing.config';
 
 export type MarkOrderReadyOutput = { order: Order };
 
@@ -40,24 +35,12 @@ export class MarkOrderReadyUseCase {
 
     const existingDelivery = await this.deliveryRepository.findByOrderId(orderId);
     if (!existingDelivery) {
-      const pickupFeeResult = Price.create(PICKUP_FEE);
-      const pricePerKmResult = Price.create(PRICE_PER_KM);
-      const minFeeResult = Price.create(MIN_DELIVERY_FEE);
-      const maxFeeResult = Price.create(MAX_DELIVERY_FEE);
-
-      if (!pickupFeeResult.success || !pricePerKmResult.success || !minFeeResult.success || !maxFeeResult.success) {
-        return Result.Failed(new Error('Failed to create delivery pricing configuration'));
-      }
+      const pricingConfig = buildPricingConfig();
 
       const feeCalc = this.distanceCalculator.calculateDeliveryFeeFromAddresses(
         restaurant.address,
         order.deliveryAddress,
-        {
-          pickupFee: pickupFeeResult.data,
-          pricePerKm: pricePerKmResult.data,
-          minDeliveryFee: minFeeResult.data,
-          maxDeliveryFee: maxFeeResult.data,
-        },
+        pricingConfig,
       );
 
       const delivery = Delivery.create({
@@ -68,8 +51,10 @@ export class MarkOrderReadyUseCase {
         deliveryAddress: order.deliveryAddress,
         distance: feeCalc.distance,
         deliveryFee: feeCalc.totalFee,
-        pickupFee: pickupFeeResult.data,
-        pricePerKm: pricePerKmResult.data,
+        pickupFee: pricingConfig.pickupFee,
+        pricePerKm: pricingConfig.pricePerKm,
+        // Transfer the client's tip integrally to the courier (zero platform commission)
+        tipAmount: order.tipAmount,
         status: 'PENDING',
       });
 

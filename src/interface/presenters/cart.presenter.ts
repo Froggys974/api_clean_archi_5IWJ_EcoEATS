@@ -12,6 +12,7 @@ export class CartPresenter {
         dishId: item.dishId,
         dishName: item.dishName,
         dishPrice: item.dishPrice.getAmount(),
+        dishImageUrl: item.dishImageUrl ?? null,
         quantity: item.quantity,
         totalPrice: item.getTotalPrice().getAmount(),
         specialInstructions: item.specialInstructions ?? null,

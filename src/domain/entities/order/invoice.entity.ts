@@ -23,6 +23,7 @@ type CreateInvoiceProps = {
   itemsSubtotal: Price;
   deliveryFee: Price;
   serviceFee: Price;
+  tipAmount?: Price;
   totalAmount: Price;
   taxRate?: number;
   taxAmount?: Price;
@@ -48,6 +49,7 @@ export class Invoice {
     public readonly itemsSubtotal: Price,
     public readonly deliveryFee: Price,
     public readonly serviceFee: Price,
+    public readonly tipAmount: Price,
     public readonly totalAmount: Price,
     public readonly taxRate: number,
     public readonly taxAmount: Price,
@@ -75,6 +77,7 @@ export class Invoice {
       props.itemsSubtotal,
       props.deliveryFee,
       props.serviceFee,
+      props.tipAmount ?? Price.zero(),
       props.totalAmount,
       props.taxRate ?? 0,
       props.taxAmount ?? Price.zero(),
@@ -147,6 +150,7 @@ export class Invoice {
       this.itemsSubtotal,
       this.deliveryFee,
       this.serviceFee,
+      this.tipAmount,
       this.totalAmount,
       this.taxRate,
       this.taxAmount,
@@ -225,6 +229,10 @@ export class Invoice {
     lines.push(`Items Subtotal: ${this.itemsSubtotal.toString()}`);
     lines.push(`Delivery Fee: ${this.deliveryFee.toString()}`);
     lines.push(`Service Fee: ${this.serviceFee.toString()}`);
+
+    if (this.tipAmount.getAmount() > 0) {
+      lines.push(`Tip (100% to courier): ${this.tipAmount.toString()}`);
+    }
 
     if (this.taxAmount.getAmount() > 0) {
       lines.push(

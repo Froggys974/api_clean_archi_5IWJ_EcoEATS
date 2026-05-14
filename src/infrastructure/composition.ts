@@ -65,6 +65,7 @@ import { MarkOrderReadyUseCase } from '@application/usecases/order/mark-order-re
 import { ListOrdersByClientUseCase } from '@application/usecases/order/list-orders-by-client.use-case';
 import { ListOrdersByRestaurantUseCase } from '@application/usecases/order/list-orders-by-restaurant.use-case';
 import { GetOrderByIdUseCase } from '@application/usecases/order/get-order-by-id.use-case';
+import { GetInvoiceByOrderIdUseCase } from '@application/usecases/order/get-invoice-by-order-id.use-case';
 
 // delivery use cases
 import { AcceptDeliveryUseCase } from '@application/usecases/delivery/accept-delivery.use-case';
@@ -178,6 +179,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   const listOrdersByClientUC = new ListOrdersByClientUseCase(orderRepository);
   const listOrdersByRestaurantUC = new ListOrdersByRestaurantUseCase(orderRepository, restaurantRepository);
   const getOrderByIdUC = new GetOrderByIdUseCase(orderRepository);
+  const getInvoiceByOrderIdUC = new GetInvoiceByOrderIdUseCase(invoiceRepository);
 
   // Delivery use cases
   const acceptDeliveryUC = new AcceptDeliveryUseCase(deliveryRepository, courierProfileRepository, restaurantRepository, notificationService, logger);
@@ -201,7 +203,7 @@ export async function createComposition(config: ConfigPort): Promise<Composition
   const cartController = new CartController(getOrCreateCartUC, addItemToCartUC, removeItemFromCartUC, clearCartUC, updateItemQuantityUC);
   const orderController = new OrderController(
     createOrderUC, acceptOrderUC, refuseOrderUC, markOrderReadyUC,
-    listOrdersByClientUC, listOrdersByRestaurantUC, getOrderByIdUC,
+    listOrdersByClientUC, listOrdersByRestaurantUC, getOrderByIdUC, getInvoiceByOrderIdUC,
   );
   const deliveryController = new DeliveryController(listAvailableDeliveriesUC, listMyDeliveriesUC, acceptDeliveryUC, completeDeliveryUC, pickupDeliveryUC, setCourierAvailabilityUC);
   const walletController = new WalletController(getMyWalletUC);
