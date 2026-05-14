@@ -143,8 +143,8 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
       description: 'Burgers artisanaux avec des ingrédients locaux.',
       address: makeAddress('5 rue Montmartre', 'Paris', 48.8630, 2.3470),
       phone: burgerPhone.data, cuisineType: 'American',
-      openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '11:30', closeTime: '23:00' })),
-      status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=3', rating: 4.2, highlighted: false,
+      openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '00:00', closeTime: '23:59' })),
+      status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=3', rating: 4.2, highlighted: true,
     }));
   }
 
