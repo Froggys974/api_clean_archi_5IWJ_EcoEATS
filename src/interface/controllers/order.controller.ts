@@ -13,7 +13,7 @@ import { CheckoutDto, AcceptOrderDto, RefuseOrderDto } from '@interface/dtos/ord
 import { Address } from '@domain/value-objects/address.value-object';
 import { Coordinates } from '@domain/value-objects/coordinates.value-object';
 
-const DEFAULT_DELIVERY_COORDINATES = { lat: 48.8566, lon: 2.3522 } as const;
+const PARIS_CENTER_FALLBACK_COORDINATES = { lat: 48.8566, lon: 2.3522 } as const;
 const DEFAULT_PAYMENT_METHOD = 'CREDIT_CARD' as const;
 const DEFAULT_SERVICE_FEE_RATE = 0.1;
 
@@ -34,7 +34,9 @@ export class OrderController {
       return { statusCode: 400, data: OrderPresenter.error('Missing required fields') };
     }
 
-    const coordsResult = Coordinates.create(DEFAULT_DELIVERY_COORDINATES.lat, DEFAULT_DELIVERY_COORDINATES.lon);
+    const deliveryLat = dto.deliveryLatitude ?? PARIS_CENTER_FALLBACK_COORDINATES.lat;
+    const deliveryLon = dto.deliveryLongitude ?? PARIS_CENTER_FALLBACK_COORDINATES.lon;
+    const coordsResult = Coordinates.create(deliveryLat, deliveryLon);
     if (!coordsResult.success) return { statusCode: 500, data: OrderPresenter.error('Coordinates error') };
 
     const addressResult = Address.create({

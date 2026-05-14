@@ -37,10 +37,10 @@ type SeedDeps = {
   hashService: HashPort;
 };
 
-function makeAddress(street: string, city: string, lat: number, lon: number): Address {
+function makeAddress(street: string, city: string, postalCode: string, lat: number, lon: number): Address {
   const coords = Coordinates.create(lat, lon);
   if (!coords.success) throw new Error('Invalid coords');
-  const addr = Address.create({ street, city, postalCode: '75001', country: 'France', coordinates: coords.data });
+  const addr = Address.create({ street, city, postalCode, country: 'France', coordinates: coords.data });
   if (!addr.success) throw new Error('Invalid address: ' + addr.error.message);
   return addr.data;
 }
@@ -125,7 +125,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantRepository.create(Restaurant.create({
       id: 'resto-1', ownerId: 'demo-owner-1', name: "Luigi's Kitchen",
       description: 'Authentique cuisine italienne, pizzas au feu de bois et pâtes fraîches.',
-      address: makeAddress('12 rue de la Paix', 'Paris', 48.8706, 2.3311),
+      address: makeAddress('12 rue de la Paix', 'Paris', '75002', 48.8706, 2.3311),
       phone: luigiPhone.data, cuisineType: 'Italian',
       openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '11:00', closeTime: d >= 4 ? '23:00' : '22:00' })),
       status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=1', rating: 4.5, highlighted: true,
@@ -137,7 +137,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantRepository.create(Restaurant.create({
       id: 'resto-2', ownerId: 'demo-owner-2', name: 'Sushi World',
       description: 'Les meilleurs sushis de Paris, poissons frais livrés chaque matin.',
-      address: makeAddress("34 avenue de l'Opéra", 'Paris', 48.8691, 2.3321),
+      address: makeAddress("34 avenue de l'Opéra", 'Paris', '75002', 48.8691, 2.3321),
       phone: sushiPhone.data, cuisineType: 'Japanese',
       openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '12:00', closeTime: '22:30' })),
       status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=2', rating: 4.8, highlighted: true,
@@ -149,7 +149,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantRepository.create(Restaurant.create({
       id: 'resto-3', ownerId: 'demo-burger-owner', name: 'Burger House',
       description: 'Burgers artisanaux avec des ingrédients locaux.',
-      address: makeAddress('5 rue Montmartre', 'Paris', 48.8630, 2.3470),
+      address: makeAddress('5 rue Montmartre', 'Paris', '75001', 48.8630, 2.3470),
       phone: burgerPhone.data, cuisineType: 'American',
       openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '00:00', closeTime: '23:59' })),
       status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=3', rating: 4.2, highlighted: true,
@@ -161,7 +161,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantRepository.create(Restaurant.create({
       id: 'resto-4', ownerId: 'demo-owner-2', name: 'Tacos Palace',
       description: 'Tacos généreux garnis à la viande grillée, sauce fromagère maison.',
-      address: makeAddress('18 boulevard Barbès', 'Paris', 48.8840, 2.3500),
+      address: makeAddress('18 boulevard Barbès', 'Paris', '75018', 48.8840, 2.3500),
       phone: tacosPhone.data, cuisineType: 'Mexican',
       openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '11:00', closeTime: '23:30' })),
       status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=4', rating: 4.3, highlighted: true,
@@ -173,7 +173,7 @@ export async function seedDatabase(deps: SeedDeps): Promise<void> {
     await restaurantRepository.create(Restaurant.create({
       id: 'resto-5', ownerId: 'demo-owner-1', name: 'Crêperie du Midi',
       description: 'Crêpes et galettes bretonnes, préparées à la minute avec des produits locaux.',
-      address: makeAddress('7 rue des Écoles', 'Paris', 48.8500, 2.3480),
+      address: makeAddress('7 rue des Écoles', 'Paris', '75005', 48.8500, 2.3480),
       phone: crepePhone.data, cuisineType: 'French',
       openingHours: [0,1,2,3,4,5,6].map(d => ({ dayOfWeek: d, openTime: '10:00', closeTime: '21:00' })),
       status: 'OPEN', imageUrl: 'https://picsum.photos/400/300?random=5', rating: 4.6, highlighted: false,

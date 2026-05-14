@@ -2,10 +2,11 @@ import { Price } from '@domain/value-objects/price.value-object';
 import { PricingConfig } from '@application/ports/distance-calculator.port';
 
 export const DELIVERY_PRICING = {
-  PICKUP_FEE: 2.5,
-  PRICE_PER_KM: 1.5,
-  MIN_DELIVERY_FEE: 3.0,
-  MAX_DELIVERY_FEE: 15.0,
+  PICKUP_FEE: 1.50,
+  PRICE_PER_KM: 1.20,
+  ROAD_MULTIPLIER: 1.35,
+  MIN_DELIVERY_FEE: 2.99,
+  MAX_DELIVERY_FEE: 12.00,
 } as const;
 
 export function buildPricingConfig(): PricingConfig {
@@ -21,6 +22,7 @@ export function buildPricingConfig(): PricingConfig {
   return {
     pickupFee: pickupFee.data,
     pricePerKm: pricePerKm.data,
+    roadMultiplier: DELIVERY_PRICING.ROAD_MULTIPLIER,
     minDeliveryFee: minDeliveryFee.data,
     maxDeliveryFee: maxDeliveryFee.data,
   };

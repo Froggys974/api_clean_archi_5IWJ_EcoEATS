@@ -14,9 +14,9 @@ export type DeliveryFeeCalculation = {
 export type PricingConfig = {
   pickupFee: Price;
   pricePerKm: Price;
+  roadMultiplier?: number;
   minDeliveryFee: Price;
   maxDeliveryFee: Price;
-  freeDeliveryThresholdKm?: number;
 };
 
 export interface DistanceCalculatorPort {
