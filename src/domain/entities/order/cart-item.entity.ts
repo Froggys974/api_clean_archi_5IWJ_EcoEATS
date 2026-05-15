@@ -7,6 +7,7 @@ type CreateCartItemProps = {
   dishName: string;
   dishPrice: Price;
   quantity: number;
+  dishImageUrl?: string;
   specialInstructions?: string;
 };
 
@@ -22,6 +23,7 @@ export class CartItem {
     public readonly dishName: string,
     public readonly dishPrice: Price,
     public readonly quantity: number,
+    public readonly dishImageUrl: string | undefined,
     public readonly specialInstructions: string | undefined
   ) {
     this.validate();
@@ -34,6 +36,7 @@ export class CartItem {
       props.dishName,
       props.dishPrice,
       props.quantity,
+      props.dishImageUrl,
       props.specialInstructions
     );
   }
@@ -63,6 +66,7 @@ export class CartItem {
       this.dishName,
       this.dishPrice,
       props.quantity ?? this.quantity,
+      this.dishImageUrl,
       props.specialInstructions ?? this.specialInstructions
     );
   }
@@ -78,6 +82,7 @@ export class CartItem {
       this.dishName,
       this.dishPrice,
       quantity,
+      this.dishImageUrl,
       this.specialInstructions
     );
   }
@@ -119,6 +124,7 @@ export class CartItem {
       this.dishName,
       this.dishPrice,
       this.quantity,
+      this.dishImageUrl,
       instructions
     );
   }

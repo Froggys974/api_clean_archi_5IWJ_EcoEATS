@@ -43,5 +43,10 @@ export function orderRouter(controller: OrderController, authGuard: AuthGuard): 
     res.status(response.statusCode).json(response.data);
   });
 
+  router.get('/:orderId/invoice', clientGuard, async (req: Request, res: Response) => {
+    const response = await controller.handleGetInvoice(req.params['orderId'] as string, req.userId!);
+    res.status(response.statusCode).json(response.data);
+  });
+
   return router;
 }

@@ -11,6 +11,8 @@ export class DeliveryPresenter {
       deliveryFee: d.deliveryFee.getAmount(),
       tipAmount: d.tipAmount.getAmount(),
       distanceKm: d.distance.getKilometers(),
+      restaurantAddress: `${d.restaurantAddress.getStreet()}, ${d.restaurantAddress.getCity()}`,
+      deliveryAddress: `${d.deliveryAddress.getStreet()}, ${d.deliveryAddress.getCity()}`,
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,
     };

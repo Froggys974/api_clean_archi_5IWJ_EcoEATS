@@ -23,8 +23,13 @@ export class HaversineDistanceCalculatorService implements DistanceCalculatorPor
     return result.data;
   }
 
-  calculateDeliveryFee(distance: Distance, config: PricingConfig): DeliveryFeeCalculation {
-    const distanceFeeResult = config.pricePerKm.multiply(distance.getKilometers());
+  calculateDeliveryFee(crowFliesDistance: Distance, config: PricingConfig): DeliveryFeeCalculation {
+    const multiplier = config.roadMultiplier ?? 1.0;
+    const roadKm = crowFliesDistance.getKilometers() * multiplier;
+    const roadDistanceResult = Distance.create(roadKm);
+    const roadDistance = roadDistanceResult.success ? roadDistanceResult.data : crowFliesDistance;
+
+    const distanceFeeResult = config.pricePerKm.multiply(roadKm);
     const distanceFee = distanceFeeResult.success ? distanceFeeResult.data : Price.zero();
 
     const rawTotalResult = config.pickupFee.add(distanceFee);
@@ -34,17 +39,17 @@ export class HaversineDistanceCalculatorService implements DistanceCalculatorPor
     if (totalFee.greaterThan(config.maxDeliveryFee)) totalFee = config.maxDeliveryFee;
 
     return {
-      distance,
+      distance: roadDistance,
       baseFee: config.pickupFee,
       distanceFee,
       totalFee,
-      estimatedDurationMinutes: this.estimateDeliveryDuration(distance),
+      estimatedDurationMinutes: this.estimateDeliveryDuration(roadDistance),
     };
   }
 
   calculateDeliveryFeeFromAddresses(from: Address, to: Address, config: PricingConfig): DeliveryFeeCalculation {
-    const distance = this.calculateDistance(from, to);
-    return this.calculateDeliveryFee(distance, config);
+    const crowFliesDistance = this.calculateDistance(from, to);
+    return this.calculateDeliveryFee(crowFliesDistance, config);
   }
 
   estimateDeliveryDuration(distance: Distance, averageSpeedKmh: number = 30): number {

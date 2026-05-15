@@ -22,6 +22,9 @@ export type RegisterRestaurantOwnerDto = {
   restaurantName: string;
   restaurantAddress: string;
   restaurantCity: string;
+  restaurantPostalCode?: string;
+  restaurantLatitude?: number;
+  restaurantLongitude?: number;
 };
 
 export class RegisterRestaurantOwner {
@@ -59,13 +62,15 @@ export class RegisterRestaurantOwner {
       phone: phoneResult.data,
     });
 
-    const coordinatesResult = Coordinates.create(48.8566, 2.3522);
+    const lat = input.restaurantLatitude ?? 48.8566;
+    const lng = input.restaurantLongitude ?? 2.3522;
+    const coordinatesResult = Coordinates.create(lat, lng);
     if (!coordinatesResult.success) return Result.Failed(new Error('Failed to create coordinates'));
 
     const addressResult = Address.create({
       street: input.restaurantAddress,
       city: input.restaurantCity,
-      postalCode: '75000',
+      postalCode: input.restaurantPostalCode ?? '75000',
       country: 'France',
       coordinates: coordinatesResult.data,
     });

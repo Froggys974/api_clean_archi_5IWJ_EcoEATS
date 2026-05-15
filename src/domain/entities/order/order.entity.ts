@@ -37,6 +37,7 @@ type CreateOrderProps = {
   itemsTotal: Price;
   deliveryFee: Price;
   serviceFee: Price;
+  tipAmount?: Price;
   totalPrice: Price;
   deliveryCode?: string;
   status?: OrderStatus;
@@ -63,6 +64,7 @@ export class Order {
     public readonly itemsTotal: Price,
     public readonly deliveryFee: Price,
     public readonly serviceFee: Price,
+    public readonly tipAmount: Price,
     public readonly totalPrice: Price,
     public readonly deliveryCode: string,
     public readonly status: OrderStatus,
@@ -92,6 +94,7 @@ export class Order {
       props.itemsTotal,
       props.deliveryFee,
       props.serviceFee,
+      props.tipAmount ?? Price.zero(),
       props.totalPrice,
       deliveryCode,
       props.status ?? 'PENDING',
@@ -144,6 +147,7 @@ export class Order {
       itemsTotal: this.itemsTotal,
       deliveryFee: this.deliveryFee,
       serviceFee: this.serviceFee,
+      tipAmount: this.tipAmount,
       totalPrice: this.totalPrice,
       deliveryCode: this.deliveryCode,
       status: this.status,

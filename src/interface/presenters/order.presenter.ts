@@ -27,6 +27,7 @@ export class OrderPresenter {
       itemsTotal: o.itemsTotal.getAmount(),
       deliveryFee: o.deliveryFee.getAmount(),
       serviceFee: o.serviceFee.getAmount(),
+      tipAmount: o.tipAmount.getAmount(),
       totalPrice: o.totalPrice.getAmount(),
       preparationTimeMinutes: o.preparationTimeMinutes ?? null,
       estimatedDeliveryTime: o.getEstimatedDeliveryTime() ?? null,

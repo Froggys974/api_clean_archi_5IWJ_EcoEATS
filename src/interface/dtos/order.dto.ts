@@ -4,6 +4,9 @@ export type CheckoutDto = {
   deliveryCity: string;
   deliveryPostalCode: string;
   deliveryCountry: string;
+  deliveryLatitude?: number;
+  deliveryLongitude?: number;
+  tipAmount?: number;
 };
 
 export type AcceptOrderDto = {

@@ -67,6 +67,7 @@ export class AddItemToCartUseCase {
         dishName: string;
         dishPrice: Price;
         quantity: number;
+        dishImageUrl?: string;
         specialInstructions?: string;
       } = {
         id: crypto.randomUUID(),
@@ -76,6 +77,7 @@ export class AddItemToCartUseCase {
         quantity: input.quantity,
       };
 
+      if (dish.imageUrl !== undefined) cartItemProps.dishImageUrl = dish.imageUrl;
       if (input.specialInstructions !== undefined) {
         cartItemProps.specialInstructions = input.specialInstructions;
       }

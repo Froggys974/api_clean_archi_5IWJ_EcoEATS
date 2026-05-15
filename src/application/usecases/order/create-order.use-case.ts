@@ -12,13 +12,12 @@ import { OrderRepository } from "@application/repositories/order.repository";
 import { InvoiceRepository } from "@application/repositories/invoice.repository";
 import { RestaurantRepository } from "@application/repositories/restaurant.repository";
 import { UserRepository } from "@application/repositories/user.repository";
-import {
-  DistanceCalculatorPort,
-  PricingConfig,
-} from "@application/ports/distance-calculator.port";
+import { DishRepository } from "@application/repositories/dish.repository";
+import { DistanceCalculatorPort } from "@application/ports/distance-calculator.port";
 import { PaymentPort, PaymentMethod } from "@application/ports/payment.port";
 import { NotificationPort } from "@application/ports/notification.port";
 import { LoggerPort } from "@application/ports/logger.port";
+import { buildPricingConfig } from "@application/config/delivery-pricing.config";
 import {
   CartNotFoundError,
   EmptyCartError,
@@ -30,17 +29,13 @@ import {
 } from "@domain/errors/restaurant.errors";
 import { UserNotFoundError } from "@domain/errors/auth.errors";
 
-const PICKUP_FEE = 2.5;
-const PRICE_PER_KM = 1.5;
-const MIN_DELIVERY_FEE = 3.0;
-const MAX_DELIVERY_FEE = 15.0;
-
 export type CreateOrderInput = {
   cartId: string;
   clientId: string;
   deliveryAddress: Address;
   paymentMethod: PaymentMethod;
   serviceFeeRate: number;
+  tipAmount?: number;
 };
 
 export type CreateOrderOutput = {
@@ -56,6 +51,7 @@ export class CreateOrderUseCase {
     private readonly invoiceRepository: InvoiceRepository,
     private readonly restaurantRepository: RestaurantRepository,
     private readonly userRepository: UserRepository,
+    private readonly dishRepository: DishRepository,
     private readonly distanceCalculator: DistanceCalculatorPort,
     private readonly paymentService: PaymentPort,
     private readonly notificationService: NotificationPort,
@@ -103,28 +99,7 @@ export class CreateOrderUseCase {
         return Result.Failed(new UserNotFoundError());
       }
 
-      const pickupFeeResult = Price.create(PICKUP_FEE);
-      const pricePerKmResult = Price.create(PRICE_PER_KM);
-      const minDeliveryFeeResult = Price.create(MIN_DELIVERY_FEE);
-      const maxDeliveryFeeResult = Price.create(MAX_DELIVERY_FEE);
-
-      if (
-        !pickupFeeResult.success ||
-        !pricePerKmResult.success ||
-        !minDeliveryFeeResult.success ||
-        !maxDeliveryFeeResult.success
-      ) {
-        return Result.Failed(
-          new Error("Failed to create pricing configuration"),
-        );
-      }
-
-      const pricingConfig: PricingConfig = {
-        pickupFee: pickupFeeResult.data,
-        pricePerKm: pricePerKmResult.data,
-        minDeliveryFee: minDeliveryFeeResult.data,
-        maxDeliveryFee: maxDeliveryFeeResult.data,
-      };
+      const pricingConfig = buildPricingConfig();
 
       const deliveryFeeCalc =
         this.distanceCalculator.calculateDeliveryFeeFromAddresses(
@@ -142,6 +117,16 @@ export class CreateOrderUseCase {
       }
       const serviceFee = serviceFeeResult.data;
 
+      // Tip: optional, paid 100% to the courier, no platform commission
+      let tipPrice = Price.zero();
+      if (input.tipAmount !== undefined && input.tipAmount > 0) {
+        const tipResult = Price.create(input.tipAmount);
+        if (!tipResult.success) {
+          return Result.Failed(new Error("Invalid tip amount"));
+        }
+        tipPrice = tipResult.data;
+      }
+
       let totalPrice = itemsTotal;
       const withDeliveryResult = totalPrice.add(deliveryFee);
       if (!withDeliveryResult.success) {
@@ -154,6 +139,13 @@ export class CreateOrderUseCase {
         return Result.Failed(withServiceFeeResult.error);
       }
       totalPrice = withServiceFeeResult.data;
+
+      // Tip is added to total AFTER service fee computation (platform takes no commission on tip)
+      const withTipResult = totalPrice.add(tipPrice);
+      if (!withTipResult.success) {
+        return Result.Failed(withTipResult.error);
+      }
+      totalPrice = withTipResult.data;
 
       const orderItems: OrderItem[] = cart.items.map((cartItem) => {
         const orderItemProps: {
@@ -188,6 +180,7 @@ export class CreateOrderUseCase {
         itemsTotal,
         deliveryFee,
         serviceFee,
+        tipAmount: tipPrice,
         totalPrice,
         status: "PENDING",
         isPaid: false,
@@ -209,6 +202,19 @@ export class CreateOrderUseCase {
       }
 
       const paidOrder = order.markAsPaid(paymentResult.paymentId);
+
+      const dishStockUpdates = await Promise.all(
+        cart.items.map(async (cartItem) => {
+          const dish = await this.dishRepository.findById(cartItem.dishId);
+          if (!dish) return null;
+          return dish.decreaseStock(cartItem.quantity);
+        }),
+      );
+
+      const updatedDishes = dishStockUpdates.filter((d): d is NonNullable<typeof d> => d !== null);
+      if (updatedDishes.length > 0) {
+        await this.dishRepository.bulkUpdate(updatedDishes);
+      }
 
       const invoiceNumber =
         await this.invoiceRepository.generateInvoiceNumber();
@@ -234,6 +240,7 @@ export class CreateOrderUseCase {
         itemsSubtotal: itemsTotal,
         deliveryFee,
         serviceFee,
+        tipAmount: tipPrice,
         totalAmount: totalPrice,
         paymentMethod: input.paymentMethod,
         paymentId: paymentResult.paymentId,

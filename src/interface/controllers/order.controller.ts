@@ -5,13 +5,15 @@ import { MarkOrderReadyUseCase } from '@application/usecases/order/mark-order-re
 import { ListOrdersByClientUseCase } from '@application/usecases/order/list-orders-by-client.use-case';
 import { ListOrdersByRestaurantUseCase } from '@application/usecases/order/list-orders-by-restaurant.use-case';
 import { GetOrderByIdUseCase } from '@application/usecases/order/get-order-by-id.use-case';
+import { GetInvoiceByOrderIdUseCase } from '@application/usecases/order/get-invoice-by-order-id.use-case';
 import { OrderPresenter } from '@interface/presenters/order.presenter';
+import { InvoicePresenter } from '@interface/presenters/invoice.presenter';
 import { ControllerResponse, ErrorResponse } from '@interface/shared/controller-response';
 import { CheckoutDto, AcceptOrderDto, RefuseOrderDto } from '@interface/dtos/order.dto';
 import { Address } from '@domain/value-objects/address.value-object';
 import { Coordinates } from '@domain/value-objects/coordinates.value-object';
 
-const DEFAULT_DELIVERY_COORDINATES = { lat: 48.8566, lon: 2.3522 } as const;
+const PARIS_CENTER_FALLBACK_COORDINATES = { lat: 48.8566, lon: 2.3522 } as const;
 const DEFAULT_PAYMENT_METHOD = 'CREDIT_CARD' as const;
 const DEFAULT_SERVICE_FEE_RATE = 0.1;
 
@@ -24,6 +26,7 @@ export class OrderController {
     private readonly listOrdersByClient: ListOrdersByClientUseCase,
     private readonly listOrdersByRestaurant: ListOrdersByRestaurantUseCase,
     private readonly getOrderByIdUseCase: GetOrderByIdUseCase,
+    private readonly getInvoiceByOrderIdUseCase: GetInvoiceByOrderIdUseCase,
   ) {}
 
   async handleCheckout(clientId: string, dto: CheckoutDto): Promise<ControllerResponse<unknown | ErrorResponse>> {
@@ -31,7 +34,9 @@ export class OrderController {
       return { statusCode: 400, data: OrderPresenter.error('Missing required fields') };
     }
 
-    const coordsResult = Coordinates.create(DEFAULT_DELIVERY_COORDINATES.lat, DEFAULT_DELIVERY_COORDINATES.lon);
+    const deliveryLat = dto.deliveryLatitude ?? PARIS_CENTER_FALLBACK_COORDINATES.lat;
+    const deliveryLon = dto.deliveryLongitude ?? PARIS_CENTER_FALLBACK_COORDINATES.lon;
+    const coordsResult = Coordinates.create(deliveryLat, deliveryLon);
     if (!coordsResult.success) return { statusCode: 500, data: OrderPresenter.error('Coordinates error') };
 
     const addressResult = Address.create({
@@ -43,13 +48,16 @@ export class OrderController {
     });
     if (!addressResult.success) return { statusCode: 400, data: OrderPresenter.error(addressResult.error.message) };
 
-    const result = await this.createOrderUseCase.execute({
+    const executeInput: Parameters<typeof this.createOrderUseCase.execute>[0] = {
       cartId: dto.cartId,
       clientId,
       deliveryAddress: addressResult.data,
       paymentMethod: DEFAULT_PAYMENT_METHOD,
       serviceFeeRate: DEFAULT_SERVICE_FEE_RATE,
-    });
+    };
+    if (dto.tipAmount !== undefined) executeInput.tipAmount = dto.tipAmount;
+
+    const result = await this.createOrderUseCase.execute(executeInput);
 
     if (!result.success) return { statusCode: 400, data: OrderPresenter.error(result.error.message) };
     return { statusCode: 201, data: OrderPresenter.order(result.data.order) };
@@ -95,5 +103,11 @@ export class OrderController {
     const result = await this.markOrderReadyUseCase.execute(orderId, ownerId);
     if (!result.success) return { statusCode: 400, data: OrderPresenter.error(result.error.message) };
     return { statusCode: 200, data: OrderPresenter.order(result.data.order) };
+  }
+
+  async handleGetInvoice(orderId: string, clientId: string): Promise<ControllerResponse<unknown | ErrorResponse>> {
+    const result = await this.getInvoiceByOrderIdUseCase.execute(orderId, clientId);
+    if (!result.success) return { statusCode: 404, data: InvoicePresenter.error(result.error.message) };
+    return { statusCode: 200, data: InvoicePresenter.invoice(result.data.invoice) };
   }
 }
